@@ -58,17 +58,19 @@ add_library(mangosscript SHARED
 )
 
 if(WIN32)
+  # Location of mangosd.lib.
+  link_directories(
+    ${CMAKE_BINARY_DIR}/src/mangosd/${CMAKE_CFG_INTDIR}
+  )
   target_link_libraries(mangosscript
     mangosd # FIXME: could this be done for unix? because unix won't generate exe.libs
-    ${ACE_LIBRARIES}
-    debug ${WIN_DEBUGLIBS}
+    ${ACE_LIBRARY}
   )
 endif()
 
-add_dependencies(mangosscript revision.h)
+add_dependencies(mangosscript mangosd revision.h)
 if(NOT ACE_USE_EXTERNAL)
-  add_dependencies(mangosscript ACE_Project)
-# add_dependencies(mangosscript ace)
+  add_dependencies(mangosscript ace)
 endif()
 
 if(UNIX)
@@ -80,9 +82,9 @@ if(UNIX)
   endif()
 
   if(APPLE)
-    set(mangosscript_PROPERTIES INSTALL_NAME_DIR "${LIBS_DIR}")
+    set(mangosscript_PROPERTIES INSTALL_NAME_DIR "${BIN_DIR}")
   else()
-    set(mangosscript_PROPERTIES INSTALL_RPATH ${LIBS_DIR})
+    set(mangosscript_PROPERTIES INSTALL_RPATH ${BIN_DIR})
   endif()
 
   # Run out of build tree
@@ -127,16 +129,16 @@ if(PCH)
     if(MSVC)
       set(mangosscript_pch "${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.cpp")
     endif()
-    add_native_precompiled_header(mangosscript ${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.h)
+    add_native_precompiled_header(mangosscript ${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled)
   elseif(CMAKE_COMPILER_IS_GNUCXX)
-    add_precompiled_header(mangosscript ${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.h)
+    add_precompiled_header(mangosscript ${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled)
   endif()
 endif()
 
 # LIBRARY = dyld / so, RUNTIME = dll
 install(TARGETS mangosscript
-  LIBRARY DESTINATION ${LIBS_DIR}
-  RUNTIME DESTINATION ${LIBS_DIR}
+  LIBRARY DESTINATION ${BIN_DIR}
+  RUNTIME DESTINATION ${BIN_DIR}
 )
 
 install(FILES scriptdevzero.conf.dist.in DESTINATION ${CONF_DIR} RENAME scriptdevzero.conf.dist)

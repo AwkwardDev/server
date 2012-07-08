@@ -17,43 +17,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef SC_CONFIG_H
-#define SC_CONFIG_H
-
-#include "Platform/CompilerDefs.h"
-#include "revision.h"
-
-// Format is YYYYMMDDRR where RR is the change in the conf file
-// for that day.
-#define SD0_CONF_VERSION    2010062001
+#include "../../shared/revision_nr.h"
 
 #ifdef WIN32
-  #define MANGOS_DLL_EXPORT extern "C" __declspec(dllexport)
+#   define MANGOS_DLL_EXPORT extern "C" __declspec(dllexport)
 #elif defined( __GNUC__ )
-  #define MANGOS_DLL_EXPORT extern "C"
+#   define MANGOS_DLL_EXPORT extern "C"
 #else
-  #define MANGOS_DLL_EXPORT extern "C" export
+#   define MANGOS_DLL_EXPORT extern "C" export
 #endif
 
-#ifndef _VERSION
-  #define _VERSION "Revision [" REVISION_ID "] " REVISION_DATE " " REVISION_TIME
-#endif
 
-// The path to config files
-#ifndef SYSCONFDIR
-  #define SYSCONFDIR ""
-#endif
-
-#if PLATFORM == PLATFORM_WINDOWS
-  #ifdef _WIN64
-    #define _FULLVERSION _VERSION " (Win64)"
-  #else
-    #define _FULLVERSION _VERSION " (Win32)"
-  #endif
-  #define _SCRIPTDEVZERO_CONFIG  "scriptdevzero.conf"
-#else
-  #define _FULLVERSION _VERSION " (Unix)"
-  #define _SCRIPTDEVZERO_CONFIG  SYSCONFDIR"scriptdevzero.conf"
-#endif
-
-#endif
+MANGOS_DLL_EXPORT
+char const* GetMangosRevStr()
+{
+    return REVISION_NR;
+}
