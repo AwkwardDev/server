@@ -58,12 +58,9 @@ add_library(framework STATIC
 
 if(NOT TBB_USE_EXTERNAL)
   add_dependencies(framework TBB_Project)
-# add_dependencies(framework tbb)
-# add_dependencies(framework tbbmalloc)
 endif()
 if(NOT ACE_USE_EXTERNAL)
-  add_dependencies(framework ACE_Project)
-# add_dependencies(framework ace)
+  add_dependencies(framework ace)
 endif()
 
 target_link_libraries(framework

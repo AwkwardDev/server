@@ -4,12 +4,12 @@ cd build
 
 if %1!==! goto without
 
-cmake .. -G %1
+cmake .. -G %1 -DPREFIX="../mangos"
 if errorlevel 1 call cmake --help
 goto end
 
 :without
-cmake ..
+cmake .. -DPREFIX="../mangos"
 
 :end
 cd ..

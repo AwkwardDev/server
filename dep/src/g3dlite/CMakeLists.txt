@@ -71,7 +71,5 @@ add_library(g3dlite STATIC
 )
 
 if(WIN32)
-  target_link_libraries(g3dlite
-    zlib
-  )
+  target_link_libraries(g3dlite zlib)
 endif()

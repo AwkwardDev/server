@@ -70,8 +70,6 @@ add_library(shared STATIC
   ${shared_SRCS}
 )
 
-add_dependencies(shared revision.h)
 if(NOT ACE_USE_EXTERNAL)
-  add_dependencies(shared ACE_Project)
-# add_dependencies(shared ace)
+  add_dependencies(shared ace)
 endif()

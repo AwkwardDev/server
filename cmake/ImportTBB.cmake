@@ -15,9 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-# Specify tbb lib that was build externally
-# add_library(tbb SHARED IMPORTED)
-# add_library(tbbmalloc SHARED IMPORTED)
 if(WIN32)
   set(LIB_SUFFIX dll)
   if(VS100_FOUND)
@@ -30,18 +27,6 @@ if(WIN32)
   else()
     set(ARCHDIR intel64)
   endif()
-#   set_target_properties(tbb PROPERTIES
-#     IMPORTED_LOCATION_RELEASE ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Release/tbb.dll
-#     IMPORTED_LOCATION_DEBUG ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Debug/tbb_debug.dll
-#     IMPORTED_IMPLIB_RELEASE ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Release/tbb.lib
-#     IMPORTED_IMPLIB_DEBUG ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Debug/tbb_debug.lib
-#   )
-#   set_target_properties(tbbmalloc PROPERTIES
-#     IMPORTED_LOCATION_RELEASE ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Release/tbbmalloc.dll
-#     IMPORTED_LOCATION_DEBUG ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Debug/tbbmalloc_debug.dll
-#     IMPORTED_IMPLIB_RELEASE ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Release/tbbmalloc.lib
-#     IMPORTED_IMPLIB_DEBUG ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Debug/tbbmalloc_debug.lib
-#   )
   set(TBB_LIBRARIES_DIR
     ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Release
     ${CMAKE_SOURCE_DIR}/dep/tbb/build/${VSDIR}/${ARCHDIR}/Debug
@@ -52,48 +37,36 @@ else()
   else()
     set(LIB_SUFFIX so)
   endif()
-#   set_target_properties(tbb PROPERTIES
-#     IMPORTED_LOCATION_RELEASE ${CMAKE_SOURCE_DIR}/dep/tbb/build/libs_release/libtbb.${LIB_SUFFIX}
-#     IMPORTED_LOCATION_DEBUG ${CMAKE_SOURCE_DIR}/dep/tbb/build/libs_debug/libtbb_debug.${LIB_SUFFIX}
-#   )
-#   set_target_properties(tbbmalloc PROPERTIES
-#     IMPORTED_LOCATION_RELEASE ${CMAKE_SOURCE_DIR}/dep/tbb/build/libs_release/libtbbmalloc.${LIB_SUFFIX}
-#     IMPORTED_LOCATION_DEBUG ${CMAKE_SOURCE_DIR}/dep/tbb/build/libs_debug/libtbbmalloc_debug.${LIB_SUFFIX}
-#   )
   set(TBB_LIBRARIES_DIR
     ${CMAKE_SOURCE_DIR}/dep/tbb/build/libs_release
     ${CMAKE_SOURCE_DIR}/dep/tbb/build/libs_debug
   )
 endif()
-# Sadly doesn't work in current version
-# add_dependencies(tbb TBB_Project)
-# add_dependencies(tbbmalloc TBB_Project)
-# set_target_properties(tbb PROPERTIES DEPENDS TBB_Project)
-# set_target_properties(tbbmalloc PROPERTIES DEPENDS TBB_Project)
 
 set(TBB_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/dep/tbb/include)
-set(TBB_LIBRARIES optimized tbb optimized tbbmalloc debug tbb_debug debug tbbmalloc_debug)
+set(TBB_LIBRARIES
+  optimized tbb
+  optimized tbbmalloc
+  debug tbb_debug
+  debug tbbmalloc_debug)
 
-# Little Hack to remove the link warnings because of not found directories
+# Create directories to avoid warnings due to inexistant directories.
 if(XCODE)
   foreach(DIR ${TBB_LIBRARIES_DIR})
     foreach(CONF ${CMAKE_CONFIGURATION_TYPES})
       file(MAKE_DIRECTORY ${DIR}/${CONF})
-    endforeach(CONF)
-  endforeach(DIR)
-  foreach(CONF ${CMAKE_CONFIGURATION_TYPES})
-    set(CONFSTR ${CONFSTR} PATTERN "${CONF}" EXCLUDE)
-  endforeach(CONF)
+    endforeach()
+  endforeach()
 endif()
 
 link_directories(
   ${TBB_LIBRARIES_DIR}
 )
 
+# To install, move generated dll files to the BIN_DIR.
 foreach(DIR ${TBB_LIBRARIES_DIR})
   install(
-    DIRECTORY ${DIR}/ DESTINATION ${LIBS_DIR}
+    DIRECTORY ${DIR}/ DESTINATION ${BIN_DIR}
     FILES_MATCHING PATTERN "*.${LIB_SUFFIX}*"
-    ${CONFSTR}
   )
-endforeach(DIR)
+endforeach()

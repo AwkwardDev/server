@@ -19,9 +19,7 @@ set(EXECUTABLE_NAME realmd)
 file(GLOB_RECURSE EXECUTABLE_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
 
 if(WIN32)
-  list(APPEND EXECUTABLE_SRCS
-    realmd.rc
-  )
+  list(APPEND EXECUTABLE_SRCS realmd.rc)
 endif()
 
 include_directories(
@@ -37,16 +35,14 @@ add_executable(${EXECUTABLE_NAME}
   ${EXECUTABLE_SRCS}
 )
 
-add_dependencies(${EXECUTABLE_NAME} revision.h)
 if(NOT ACE_USE_EXTERNAL)
-  add_dependencies(${EXECUTABLE_NAME} ACE_Project)
-# add_dependencies(${EXECUTABLE_NAME} ace)
+  add_dependencies(${EXECUTABLE_NAME} ace)
 endif()
 
 target_link_libraries(${EXECUTABLE_NAME}
   shared
   framework
-  ${ACE_LIBRARIES}
+  ${ACE_LIBRARY}
 )
 
 if(WIN32)
@@ -56,9 +52,6 @@ if(WIN32)
     debug ${MYSQL_DEBUG_LIBRARY}
     debug ${OPENSSL_DEBUG_LIBRARIES}
   )
-  if(PLATFORM MATCHES X86)
-    target_link_libraries(${EXECUTABLE_NAME})
-  endif()
 endif()
 
 if(UNIX)

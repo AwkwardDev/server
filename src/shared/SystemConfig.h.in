@@ -28,9 +28,9 @@
 
 #ifndef _VERSION
 #if PLATFORM == PLATFORM_WINDOWS
-# define _VERSION(REVD,REVT,REVN,REVH) "0.12.1" " (" REVD " " REVT " Revision " REVN " - " REVH ")"
+# define _VERSION(REVDT,REVN,REVH) "0.12.1" " (" REVDT " Revision " REVN " - " REVH ")"
 #else
-# define _VERSION(REVD,REVT,REVN,REVH) "@VERSION@" " (" REVD " " REVT " Revision " REVN " - " REVH ")"
+# define _VERSION(REVDT,REVN,REVH) "@VERSION@" " (" REVDT " Revision " REVN " - " REVH ")"
 #endif
 #endif
 
@@ -97,7 +97,8 @@
 # define _MODS_CONFIG  SYSCONFDIR"mods.conf"
 #endif
 
-#define _FULLVERSION(REVD,REVT,REVN,REVH) _PACKAGENAME "/" _VERSION(REVD,REVT,REVN,REVH) " for " _ENDIAN_PLATFORM
+#define _FULLVERSION(REVDT,REVN,REVH) \
+    _PACKAGENAME "/" _VERSION(REVDT,REVN,REVH) " for " _ENDIAN_PLATFORM
 
 #define DEFAULT_PLAYER_LIMIT 100
 #define DEFAULT_WORLDSERVER_PORT 8085                       //8129

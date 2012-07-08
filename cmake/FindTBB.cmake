@@ -1,90 +1,66 @@
-# Locate Intel Threading Building Blocks include paths and libraries
-# CPPunit can be found at http://cppunit.sourceforge.net
-# Written by Michael Hammer, michael _at_ derhammer.net
-
+# Find the Intel Threading Building Blocks includes and libraries.
 # This module defines
 # TBB_INCLUDE_DIR, where to find ptlib.h, etc.
 # TBB_LIBRARIES, the libraries to link against to use pwlib.
 # TBB_FOUND, If false, don't try to use pwlib.
 
-FIND_PATH(TBB_INCLUDE_DIR tbb/task_scheduler_init.h
-    /usr/local/include
-    /usr/include
-    ${TBB_ROOT}
-    ${TBB_ROOT}/include
-    $ENV{TBB_ROOT}
-    $ENV{TBB_ROOT}/include
-    # ${CMAKE_SOURCE_DIR}/dep/tbb/include
-)
+set(TBB_FOUND NO)
 
-FIND_LIBRARY(TBB_LIBRARIES
-  NAMES
-    tbb
-  PATHS
-    /usr/local/lib
-    /usr/lib
-    ${TBB_ROOT}
-    ${TBB_ROOT}/lib
-    $ENV{TBB_ROOT}
-    $ENV{TBB_ROOT}/lib
-    # ${CMAKE_SOURCE_DIR}/dep/tbb/build/vsproject/ia32/Release
-)
+if(UNIX)
+  find_path(TBB_INCLUDE_DIR
+    NAMES
+      tbb/task_scheduler_init.h
+    PATHS
+      /usr/local/include
+      /usr/include
+      ${TBB_ROOT}
+      ${TBB_ROOT}/include
+      $ENV{TBB_ROOT}
+      $ENV{TBB_ROOT}/include
+  )
+  set(TBB_LIBRARY_PATHS
+      /usr/local/lib
+      /usr/lib
+      ${TBB_ROOT}
+      ${TBB_ROOT}/lib
+      $ENV{TBB_ROOT}
+      $ENV{TBB_ROOT}/lib
+  )
 
-FIND_LIBRARY(TBB_EXTRA_LIBRARIES
-  NAMES
-    tbbmalloc
-  PATHS
-    /usr/local/lib
-    /usr/lib
-    ${TBB_ROOT}
-    ${TBB_ROOT}/lib
-    $ENV{TBB_ROOT}
-    $ENV{TBB_ROOT}/lib
-    # ${CMAKE_SOURCE_DIR}/dep/tbb/build/vsproject/ia32/Release
-)
-
-FIND_LIBRARY(TBB_LIBRARIES_DEBUG
-  NAMES
-    tbb_debug
-  PATHS
-    /usr/local/lib
-    /usr/lib
-    ${TBB_ROOT}
-    ${TBB_ROOT}/lib
-    $ENV{TBB_ROOT}
-    $ENV{TBB_ROOT}/lib
-    # ${CMAKE_SOURCE_DIR}/dep/tbb/build/vsproject/ia32/Debug
-)
-
-FIND_LIBRARY(TBB_EXTRA_LIBRARIES_DEBUG
-  NAMES
-    tbbmalloc_debug
-  PATHS
-    /usr/local/lib
-    /usr/lib
-    ${TBB_ROOT}
-    ${TBB_ROOT}/lib
-    $ENV{TBB_ROOT}
-    $ENV{TBB_ROOT}/lib
-    # ${CMAKE_SOURCE_DIR}/dep/tbb/build/vsproject/ia32/Debug
-)
-
-SET(TBB_FOUND 0)
-IF(TBB_INCLUDE_DIR)
-  IF(TBB_LIBRARIES)
-    SET(TBB_FOUND 1)
-    MESSAGE(STATUS "Found Intel TBB")
-    SET(TBB_LIBRARIES
-      ${TBB_LIBRARIES}
-      ${TBB_EXTRA_LIBRARIES}
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    find_library(TBB_LIBRARY
+        tbb_debug
+        PATHS ${TBB_LIBRARY_PATHS}
     )
-  ENDIF(TBB_LIBRARIES)
-ENDIF(TBB_INCLUDE_DIR)
+    find_library(TBB_MALLOC_LIBRARY
+        tbbmalloc_debug
+        PATHS ${TBB_LIBRARY_PATHS}
+    )
+  else()
+    find_library(TBB_LIBRARY
+        tbb
+        PATHS ${TBB_LIBRARY_PATHS}
+    )
+    find_library(TBB_MALLOC_LIBRARY
+        tbbmalloc
+        PATHS ${TBB_LIBRARY_PATHS}
+    )
+  endif()
 
-MARK_AS_ADVANCED(
-  TBB_INCLUDE_DIR
-  TBB_LIBRARIES
-  TBB_EXTRA_LIBRARIES
-  TBB_LIBRARIES_DEBUG
-  TBB_EXTRA_LIBRARIES_DEBUG
-)
+  set(TBB_LIBRARIES ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY})
+
+  if(TBB_INCLUDE_DIR)
+    message(STATUS "Found TBB headers: ${TBB_INCLUDE_DIR}")
+  endif()
+  if(TBB_LIBRARY AND TBB_MALLOC_LIBRARY)
+    message(STATUS "Found TBB library: ${TBB_LIBRARIES}")
+  endif()
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(TBB
+    "Could not find TBB headers or library. Please install them."
+    TBB_INCLUDE_DIR
+    TBB_LIBRARIES
+  )
+  endif()
+endif()
