@@ -33,6 +33,12 @@
 // Get ACE_Time_Value in
 #include "ace/Time_Value.h"
 
+#if defined(__ACE_INLINE__)
+# define MAYBE_INLINE inline
+#else
+# define MAYBE_INLINE
+#endif
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 class ACE_Reactor_Impl;
@@ -207,14 +213,14 @@ public:
    * will be dispatched then. If the reactor is closed or deleted without
    * further dispatching, the notifications will be lost.
    */
-  int end_reactor_event_loop (void);
+  MAYBE_INLINE int end_reactor_event_loop (void);
 
   /// Indicate if the Reactor's event loop has been ended.
-  int reactor_event_loop_done (void);
+  MAYBE_INLINE int reactor_event_loop_done (void);
 
   /// Resets the ACE_Reactor::end_event_loop_ static so that the
   /// run_event_loop() method can be restarted.
-  void reset_reactor_event_loop (void);
+  MAYBE_INLINE void reset_reactor_event_loop (void);
 
   /**
    * Create the Reactor using @a implementation.  The flag
@@ -825,7 +831,7 @@ public:
                  int ops);
 
   /// Get the implementation class
-  ACE_Reactor_Impl *implementation (void) const;
+  MAYBE_INLINE ACE_Reactor_Impl *implementation (void) const;
 
   /**
    * Returns 0, if the size of the current message has been put in
@@ -869,7 +875,6 @@ protected:
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 
 #if defined (__ACE_INLINE__)
 #include "ace/Reactor.inl"

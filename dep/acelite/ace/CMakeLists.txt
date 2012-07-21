@@ -335,7 +335,13 @@ add_definitions(-DACE_BUILD_DLL)
 
 add_library(ace SHARED ${ace_STAT_SRCS})
 
-add_native_precompiled_header(ace
-    ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/WinAcePCH)
+if(MINGW)
+  # Winsock library & friends. Important to add them like this so that the -l
+  # flags (e.g. -lws2_32) end up after the objects in the command line.
+  target_link_libraries(ace ws2_32 netapi32 mswsock)
+endif()
+
+add_precompiled_header(ace
+  "${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/WinAcePCH.h")
 
 install(TARGETS ace RUNTIME DESTINATION "${BIN_DIR}")

@@ -1,6 +1,6 @@
 message("")
 
-message("MaNGOS-Core revision  : ${GIT_REVISION}")
+message("MaNGOS-Core revision  : ${GIT_HASHSTRING}")
 message("Install server to     : ${CMAKE_INSTALL_PREFIX}")
 
 if(DEBUG)

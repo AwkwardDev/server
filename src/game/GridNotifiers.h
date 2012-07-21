@@ -137,7 +137,7 @@ namespace MaNGOS
         Creature &i_creature;
         CreatureRelocationNotifier(Creature &c) : i_creature(c) {}
         template<class T> void Visit(GridRefManager<T> &) {}
-        #ifdef WIN32
+        #if defined(WIN32) && !defined(__MINGW32__)
         template<> void Visit(PlayerMapType &);
         #endif
     };
@@ -156,7 +156,7 @@ namespace MaNGOS
         }
 
         template<class T> inline void Visit(GridRefManager<T>  &) {}
-        #ifdef WIN32
+        #if defined(WIN32) && !defined(__MINGW32__)
         template<> inline void Visit<Player>(PlayerMapType &);
         template<> inline void Visit<Creature>(CreatureMapType &);
         #endif

@@ -47,12 +47,6 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
 )
 
-if(PCH)
-  include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}
-  )
-endif()
-
 add_library(mangosscript SHARED
   ${mangosscript_SRCS}
 )
@@ -106,34 +100,13 @@ if(WIN32)
   )
 endif()
 
-## libtool settings
-#  API versioning
-#  Link against dependencies
-#  How to increase version info:
-#  - only bug fixes implemented:
-#    bump the version to LTMANGOS_CURRENT:LTMANGOS_REVISION+1:LTMANGOS_AGE
-#  - augmented the interface:
-#    bump the version to LTMANGOS_CURRENT+1:0:LTMANGOS_AGE+1
-#  - broken old interface:
-#    bump the version to LTMANGOS_CURRENT+1:0:0
-# set(LTMANGOS_CURRENT 0)
-# set(LTMANGOS_REVISION 0)
-# set(LTMANGOS_AGE 0)
-# set_target_properties(script PROPERTIES LINK_FLAGS
-#   "-version-info ${LTMANGOS_CURRENT}:${LTMANGOS_REVISION}:${LTMANGOS_AGE}"
-# )
-
-# Generate precompiled header
 if(PCH)
-  if(MSVC OR XCODE)
-    if(MSVC)
-      set(mangosscript_pch "${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.cpp")
-    endif()
-    add_native_precompiled_header(mangosscript ${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled)
-  elseif(CMAKE_COMPILER_IS_GNUCXX)
-    add_precompiled_header(mangosscript ${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled)
-  endif()
+  include_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}
+  )
 endif()
+add_precompiled_header(mangosscript
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.h")
 
 # LIBRARY = dyld / so, RUNTIME = dll
 install(TARGETS mangosscript

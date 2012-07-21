@@ -770,7 +770,7 @@ namespace MaNGOS
             }
         }
 
-        #ifdef WIN32
+        #if defined(WIN32) && !defined(__MINGW32__)
         template<> inline void Visit(CorpseMapType & ) {}
         template<> inline void Visit(GameObjectMapType & ) {}
         template<> inline void Visit(DynamicObjectMapType & ) {}
@@ -778,7 +778,7 @@ namespace MaNGOS
         #endif
     };
 
-    #ifndef WIN32
+    #if !defined(WIN32) || defined(__MINGW32__)
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(CorpseMapType& ) {}
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(GameObjectMapType& ) {}
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(DynamicObjectMapType& ) {}

@@ -35,6 +35,12 @@
 #include "ace/Message_Queue.h"
 #include "ace/Process_Mutex.h"
 
+#if defined(__ACE_INLINE__)
+# define MAYBE_INLINE inline
+#else
+# define MAYBE_INLINE
+#endif
+
 // If we don't have WinSOCK2, we need these defined
 #if !defined (ACE_HAS_WINSOCK2) || (ACE_HAS_WINSOCK2 == 0)
 /*
@@ -1044,7 +1050,7 @@ public:
    * else will wait until the relative time specified in @a timeout
    * elapses).
    */
-  virtual int notify (ACE_Event_Handler * = 0,
+  MAYBE_INLINE virtual int notify (ACE_Event_Handler * = 0,
                       ACE_Reactor_Mask = ACE_Event_Handler::EXCEPT_MASK,
                       ACE_Time_Value * = 0);
 
@@ -1116,7 +1122,7 @@ public:
 
   /// Wake up all threads in WaitForMultipleObjects so that they can
   /// reconsult the handle set
-  virtual void wakeup_all_threads (void);
+  MAYBE_INLINE virtual void wakeup_all_threads (void);
 
   /**
    * Transfers ownership of the WFMO_Reactor to the @a new_owner. The
@@ -1195,7 +1201,7 @@ protected:
                           int operation);
 
   /// Return the ID of the "owner" thread. Does not do any locking.
-  virtual ACE_thread_t owner_i (void);
+  MAYBE_INLINE virtual ACE_thread_t owner_i (void);
 
   /// Wait up to @a max_wait_time until it's ok to enter
   /// WaitForMultipleObjects. Returns 1 (and holding lock_) if ok to wait;

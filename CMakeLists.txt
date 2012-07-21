@@ -46,82 +46,9 @@ include(Platform)
 include(Prefix)
 include(Options)
 include(PCH)
+include(Dependencies)
+include(CompilerFlags)
 find_package(Git)
-
-# TODO -------------------------------------------------------------------------
-set(VS100_FOUND YES)
-# mingw OR if(WIN32 AND NOT MSVC)
-#       message(FATAL_ERROR "Only Visual Studio is supported for Windows."
-# dbghelp.dll, 32 bits only ?
-# ------------------------------------------------------------------------------
-
-#-- ACE & TBB ------------------------------------------------------------------
-
-# Build on WIN32, find the libraires on unix.
-
-if(WIN32)
-  set(ACE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/dep/acelite)
-  set(ACE_LIBRARY "ace")
-  set(HAVE_ACE_STACK_TRACE_H ON) # config.h.cmake
-else()
-  find_package(ACE REQUIRED)
-endif()
-
-if(NOT USE_STD_MALLOC)
-  if(WIN32)
-    include(cmake/ImportTBB.cmake)
-  else()
-    find_package(TBB REQUIRED)
-  endif()
-endif()
-
-#           WINDOWS         UNIX
-# ACE       compiled        external?
-# TBB       compiled        external
-# MySQL     pre-compiled    external
-# OpenSSL   pre-compiled    external
-# ZLIB      compiled        external
-
-#-- MySQL, OpenSSL & ZLIB ------------------------------------------------------
-
-# Win32 has pre-compiled libraries, find the libraries on unix.
-if(WIN32)
-  set(MYSQL_INCLUDE_DIR
-    ${CMAKE_SOURCE_DIR}/dep/include/mysql)
-  set(MYSQL_LIBRARY
-    ${CMAKE_SOURCE_DIR}/dep/lib/${PLATFORM}_release/libmySQL.lib)
-  set(MYSQL_DEBUG_LIBRARY
-    ${CMAKE_SOURCE_DIR}/dep/lib/${PLATFORM}_debug/libmySQL.lib)
-  set(OPENSSL_INCLUDE_DIR
-    ${CMAKE_SOURCE_DIR}/dep/include/openssl)
-  set(OPENSSL_LIBRARIES
-    ${CMAKE_SOURCE_DIR}/dep/lib/${PLATFORM}_release/libeay32.lib)
-  set(OPENSSL_DEBUG_LIBRARIES
-    ${CMAKE_SOURCE_DIR}/dep/lib/${PLATFORM}_debug/libeay32.lib)
-elseif(UNIX)
-  find_package(MySQL REQUIRED)
-  find_package(OpenSSL REQUIRED)
-  find_package(ZLIB REQUIRED)
-endif()
-
-if(WIN32)
-  install(
-    FILES
-      ${CMAKE_SOURCE_DIR}/dep/lib/${PLATFORM}_release/libeay32.dll
-      ${CMAKE_SOURCE_DIR}/dep/lib/${PLATFORM}_release/libmySQL.dll
-    DESTINATION ${BIN_DIR}
-    CONFIGURATIONS Release
-  )
-  install(
-    FILES
-      ${CMAKE_SOURCE_DIR}/dep/lib/${PLATFORM}_debug/libeay32.dll
-      ${CMAKE_SOURCE_DIR}/dep/lib/${PLATFORM}_debug/libmySQL.dll
-    DESTINATION ${BIN_DIR}
-    CONFIGURATIONS Debug
-  )
-endif()
-
-#-------------------------------------------------------------------------------
 
 # Find the git revision (HEAD commit) hashstring and date.
 if(GIT_EXECUTABLE)
@@ -140,11 +67,11 @@ if(GIT_EXECUTABLE)
     ERROR_QUIET
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
-  if(NOT GIT_RESULT)
-    set(GIT_REVISION "Git repository not found.")
+  if(GIT_RESULT) # if errorcode (GIT_RESULT != 0)
+    set(GIT_HASHSTRING "Git repository not found.")
   endif()
 else()
-  set(GIT_REVISION "Git not found.")
+  set(GIT_HASHSTRING "Git not found.")
 endif()
 
 configure_file(
@@ -154,7 +81,6 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
-include(CompilerFlags)
 include(PrintConfig)
 
 add_subdirectory(dep)

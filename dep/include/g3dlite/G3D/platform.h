@@ -37,6 +37,10 @@
 #   define G3D_DEBUG
 #endif
 
+#if defined(__MINGW32__) && !defined(_MSC_VER)
+#   define _MSC_VER
+#endif
+
 #ifndef _MSC_VER
 /// Fast call is a register-based optimized calling convention supported only by Visual C++
 #define __fastcall
@@ -115,10 +119,6 @@
 // for debug assertions in inlined methods.
 #  pragma warning (disable : 4127)
 
-/** @def G3D_DEPRECATED()
-    Creates deprecated warning. */
-#  define G3D_DEPRECATED __declspec(deprecated)
-
 // Prevent Winsock conflicts by hiding the winsock API
 #   ifndef _WINSOCKAPI_
 #       define _G3D_INTERNAL_HIDE_WINSOCK_
@@ -130,23 +130,31 @@
 // TODO: remove
 #   pragma warning (disable : 4244)
 
-#   define restrict
+#   if !defined(__MINGW32__)
 
-/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
-    Enables printf parameter validation on gcc. */
-#   define G3D_CHECK_PRINTF_ARGS
+/**     @def G3D_DEPRECATED()
+        Creates deprecated warning. */
+#       define G3D_DEPRECATED __declspec(deprecated)
 
-/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
-    Enables printf parameter validation on gcc. */
-#   define G3D_CHECK_VPRINTF_ARGS
+#       define restrict
 
-/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
-    Enables printf parameter validation on gcc. */
-#   define G3D_CHECK_PRINTF_METHOD_ARGS
+/**     @def G3D_CHECK_PRINTF_METHOD_ARGS()
+        Enables printf parameter validation on gcc. */
+#       define G3D_CHECK_PRINTF_ARGS
 
-/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
-    Enables printf parameter validation on gcc. */
-#   define G3D_CHECK_VPRINTF_METHOD_ARGS
+/**     @def G3D_CHECK_PRINTF_METHOD_ARGS()
+        Enables printf parameter validation on gcc. */
+#       define G3D_CHECK_VPRINTF_ARGS
+
+/**     @def G3D_CHECK_PRINTF_METHOD_ARGS()
+        Enables printf parameter validation on gcc. */
+#       define G3D_CHECK_PRINTF_METHOD_ARGS
+
+/**     @def G3D_CHECK_PRINTF_METHOD_ARGS()
+        Enables printf parameter validation on gcc. */
+#       define G3D_CHECK_VPRINTF_METHOD_ARGS
+
+#   endif /* !defined(__MINGW32__) */
 
     // On MSVC, we need to link against the multithreaded DLL version of
     // the C++ runtime because that is what SDL and ZLIB are compiled
@@ -309,7 +317,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 /** @def G3D_BEGIN_PACKED_CLASS(byteAlign)
     Switch to tight alignment
     See G3D::Color3uint8 for an example.*/
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__MINGW32__)
 #    define G3D_BEGIN_PACKED_CLASS(byteAlign)  PRAGMA( pack(push, byteAlign) )
 #else
 #    define G3D_BEGIN_PACKED_CLASS(byteAlign)
@@ -318,7 +326,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 /** @def G3D_END_PACKED_CLASS(byteAlign)
     End switch to tight alignment
     See G3D::Color3uint8 for an example.*/
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__MINGW32__)
 #    define G3D_END_PACKED_CLASS(byteAlign)  ; PRAGMA( pack(pop) )
 #elif defined(__GNUC__)
 #    define G3D_END_PACKED_CLASS(byteAlign)  __attribute((aligned(byteAlign))) ;

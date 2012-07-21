@@ -66,9 +66,14 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/include/zlib
 )
 
-add_library(g3dlite STATIC
-  ${g3dlite_SRCS}
-)
+if(MINGW)
+  # MinGW is not originally supported, we achieve support by defining
+  # this macro and adding !defined(__MINGW32__) checks to place where
+  # the code uses Microsoft C syntax.
+  add_definitions("-D_MSC_VER")
+endif()
+
+add_library(g3dlite STATIC ${g3dlite_SRCS})
 
 if(WIN32)
   target_link_libraries(g3dlite zlib)

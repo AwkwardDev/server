@@ -22,6 +22,12 @@
 
 #include "ace/Thread_Manager.h"
 
+#if defined(__ACE_INLINE__)
+# define MAYBE_INLINE inline
+#else
+# define MAYBE_INLINE
+#endif
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 /**
@@ -217,7 +223,7 @@ public:
   void grp_id (int);
 
   /// Get the thread manager associated with this Task.
-  ACE_Thread_Manager *thr_mgr (void) const;
+  MAYBE_INLINE ACE_Thread_Manager *thr_mgr (void) const;
 
   /// Set the thread manager associated with this Task.
   void thr_mgr (ACE_Thread_Manager *);

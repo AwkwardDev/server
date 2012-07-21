@@ -25,7 +25,7 @@ if(PREFIX)
   get_filename_component(CMAKE_INSTALL_PREFIX ${PREFIX} ABSOLUTE)
 else()
     # Add the variable to the cache so that users may override it.
-    set(PREFIX ${CMAKE_INSTALL_PREFIX} CACHE)
+    set(PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "Install prefix.")
 endif()
 
 set(BIN_DIR  ${CMAKE_INSTALL_PREFIX}/bin)
