@@ -16,7 +16,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 set(EXECUTABLE_NAME mangosd)
-file(GLOB_RECURSE EXECUTABLE_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
+file(GLOB_RECURSE EXECUTABLE_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+  *.cpp *.h)
 
 if(WIN32)
   list(APPEND EXECUTABLE_SRCS
@@ -40,10 +41,8 @@ add_executable(${EXECUTABLE_NAME}
   ${EXECUTABLE_SRCS}
 )
 
-add_dependencies(${EXECUTABLE_NAME} revision.h)
 if(NOT ACE_USE_EXTERNAL)
-  add_dependencies(${EXECUTABLE_NAME} ACE_Project)
-# add_dependencies(${EXECUTABLE_NAME} ace)
+  add_dependencies(${EXECUTABLE_NAME} ace)
 endif()
 
 target_link_libraries(${EXECUTABLE_NAME}
@@ -52,7 +51,7 @@ target_link_libraries(${EXECUTABLE_NAME}
   framework
   g3dlite
   gsoap
-  ${ACE_LIBRARIES}
+  ${ACE_LIBRARY}
 )
 
 if(WIN32)
@@ -87,8 +86,10 @@ if(APPLE)
   set(EXECUTABLE_LINK_FLAGS "-framework Carbon ${EXECUTABLE_LINK_FLAGS}")
 endif()
 
-set_target_properties(${EXECUTABLE_NAME} PROPERTIES LINK_FLAGS
-  "${EXECUTABLE_LINK_FLAGS}"
+# ENABLE_EXPORTS allows the script library to call into the executable.
+set_target_properties(${EXECUTABLE_NAME} PROPERTIES
+  LINK_FLAGS        "${EXECUTABLE_LINK_FLAGS}"
+  ENABLE_EXPORTS    TRUE
 )
 
 install(TARGETS ${EXECUTABLE_NAME} DESTINATION ${BIN_DIR})

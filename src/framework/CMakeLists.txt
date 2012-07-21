@@ -50,6 +50,7 @@ source_group("Dynamic"
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${ACE_INCLUDE_DIR}
+  ${TBB_INCLUDE_DIR}
 )
 
 add_library(framework STATIC
@@ -57,15 +58,10 @@ add_library(framework STATIC
 )
 
 if(NOT TBB_USE_EXTERNAL)
-  add_dependencies(framework TBB_Project)
-# add_dependencies(framework tbb)
-# add_dependencies(framework tbbmalloc)
+  add_dependencies(framework tbbmalloc)
 endif()
 if(NOT ACE_USE_EXTERNAL)
-  add_dependencies(framework ACE_Project)
-# add_dependencies(framework ace)
+  add_dependencies(framework ace)
 endif()
 
-target_link_libraries(framework
-  ${TBB_LIBRARIES}
-)
+target_link_libraries(framework ${TBB_LIBRARY})

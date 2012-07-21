@@ -22,15 +22,18 @@ file(GLOB_RECURSE shared_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
 if(WIN32)
   list(REMOVE_ITEM shared_SRCS
     PosixDaemon.h
-    PosixDaemon.cpp
-  )
+    PosixDaemon.cpp)
+  if(MINGW)
+    list(REMOVE_ITEM shared_SRCS
+      WheatyExceptionReport.cpp
+      WheatyExceptionReport.h)
+  endif()
 else()
   list(REMOVE_ITEM shared_SRCS
     WheatyExceptionReport.cpp
     WheatyExceptionReport.h
     ServiceWin32.cpp
-    ServiceWin32.h
-  )
+    ServiceWin32.h)
 endif()
 
 source_group("Util"
@@ -70,8 +73,6 @@ add_library(shared STATIC
   ${shared_SRCS}
 )
 
-add_dependencies(shared revision.h)
 if(NOT ACE_USE_EXTERNAL)
-  add_dependencies(shared ACE_Project)
-# add_dependencies(shared ace)
+  add_dependencies(shared ace)
 endif()

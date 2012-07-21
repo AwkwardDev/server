@@ -108,7 +108,7 @@ extern int main(int argc, char **argv)
                 cfg_file = cmd_opts.opt_arg();
                 break;
             case 'v':
-                printf("%s\n", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID));
+                printf("%s\n", _FULLVERSION(REVISION_DATETIME,REVISION_NR,REVISION_ID));
                 return 0;
 
             case 's':
@@ -186,7 +186,7 @@ extern int main(int argc, char **argv)
 
     sLog.Initialize();
 
-    sLog.outString( "%s [realm-daemon]", _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_NR,REVISION_ID) );
+    sLog.outString( "%s [realm-daemon]", _FULLVERSION(REVISION_DATETIME,REVISION_NR,REVISION_ID) );
     sLog.outString( "<Ctrl-C> to stop.\n" );
     sLog.outString("Using configuration file %s.", cfg_file);
 

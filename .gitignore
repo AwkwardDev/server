@@ -22,7 +22,7 @@
 # Top-level generic files
 #
 bin
-build
+build*
 tags
 TAGS
 !.gitignore
@@ -108,4 +108,3 @@ dep/ACE_wrappers/ace/config.h
 !dep/ACE_wrappers/configure.ac~
 !dep/ACE_wrappers/lib/.empty
 !dep/tbb/src/Makefile
-
