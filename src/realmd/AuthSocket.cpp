@@ -329,7 +329,7 @@ bool AuthSocket::_HandleLogonChallenge()
 
     recv((char *)&buf[0], 4);
 
-    EndianConvert(*((uint16*)(buf[0])));
+    EndianConvert(*((uint16*)(&buf[0])));
     uint16 remaining = ((sAuthLogonChallenge_C *)&buf[0])->size;
     DEBUG_LOG("[AuthChallenge] got header, body is %#04x bytes", remaining);
 
@@ -755,7 +755,7 @@ bool AuthSocket::_HandleReconnectChallenge()
 
     recv((char *)&buf[0], 4);
 
-    EndianConvert(*((uint16*)(buf[0])));
+    EndianConvert(*((uint16*)(&buf[0])));
     uint16 remaining = ((sAuthLogonChallenge_C *)&buf[0])->size;
     DEBUG_LOG("[ReconnectChallenge] got header, body is %#04x bytes", remaining);
 
