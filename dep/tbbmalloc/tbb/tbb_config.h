@@ -30,7 +30,7 @@
 #define __TBB_tbb_config_H
 
 /** This header is supposed to contain macro definitions and C style comments only.
-    The macros defined here are intended to control such aspects of TBB build as 
+    The macros defined here are intended to control such aspects of TBB build as
     - presence of compiler features
     - compilation modes
     - feature sets
@@ -118,7 +118,7 @@
 #ifndef TBB_USE_ASSERT
 #ifdef TBB_DO_ASSERT
 #define TBB_USE_ASSERT TBB_DO_ASSERT
-#else 
+#else
 #define TBB_USE_ASSERT TBB_USE_DEBUG
 #endif /* TBB_DO_ASSERT */
 #endif /* TBB_USE_ASSERT */
@@ -126,7 +126,7 @@
 #ifndef TBB_USE_THREADING_TOOLS
 #ifdef TBB_DO_THREADING_TOOLS
 #define TBB_USE_THREADING_TOOLS TBB_DO_THREADING_TOOLS
-#else 
+#else
 #define TBB_USE_THREADING_TOOLS TBB_USE_DEBUG
 #endif /* TBB_DO_THREADING_TOOLS */
 #endif /* TBB_USE_THREADING_TOOLS */
@@ -134,7 +134,7 @@
 #ifndef TBB_USE_PERFORMANCE_WARNINGS
 #ifdef TBB_PERFORMANCE_WARNINGS
 #define TBB_USE_PERFORMANCE_WARNINGS TBB_PERFORMANCE_WARNINGS
-#else 
+#else
 #define TBB_USE_PERFORMANCE_WARNINGS TBB_USE_DEBUG
 #endif /* TBB_PEFORMANCE_WARNINGS */
 #endif /* TBB_USE_PERFORMANCE_WARNINGS */
@@ -188,7 +188,7 @@
 /** Internal TBB features & modes **/
 
 /** __TBB_DYNAMIC_LOAD_ENABLED describes the system possibility to dynamic load libraries
-    __TBB_SOURCE_DIRECTLY_INCLUDED is a mode used in whitebox testing when 
+    __TBB_SOURCE_DIRECTLY_INCLUDED is a mode used in whitebox testing when
     it's necessary to test internal functions not exported from TBB DLLs
 **/
 
@@ -196,11 +196,6 @@
     #define __TBB_DYNAMIC_LOAD_ENABLED 1
 #elif !(_WIN32||_WIN64) && !__TBB_DYNAMIC_LOAD_ENABLED
     #define __TBB_WEAK_SYMBOLS 1
-#endif
-
-#if (_WIN32||_WIN64) && __TBB_SOURCE_DIRECTLY_INCLUDED
-    #define __TBB_NO_IMPLICIT_LINKAGE 1
-    #define __TBBMALLOC_NO_IMPLICIT_LINKAGE 1
 #endif
 
 #ifndef __TBB_COUNT_TASK_NODES
@@ -252,9 +247,9 @@
 #endif
 
 /** Macros of the form __TBB_XXX_BROKEN denote known issues that are caused by
-    the bugs in compilers, standard or OS specific libraries. They should be 
+    the bugs in compilers, standard or OS specific libraries. They should be
     removed as soon as the corresponding bugs are fixed or the buggy OS/compiler
-    versions go out of the support list. 
+    versions go out of the support list.
 **/
 
 #if __GNUC__ && __TBB_x86_64 && __INTEL_COMPILER == 1200
@@ -262,14 +257,14 @@
 #endif
 
 #if _MSC_VER && __INTEL_COMPILER && (__INTEL_COMPILER<1110 || __INTEL_COMPILER==1110 && __INTEL_COMPILER_BUILD_DATE < 20091012)
-    /** Necessary to avoid ICL error (or warning in non-strict mode): 
-        "exception specification for implicitly declared virtual destructor is 
+    /** Necessary to avoid ICL error (or warning in non-strict mode):
+        "exception specification for implicitly declared virtual destructor is
         incompatible with that of overridden one". **/
     #define __TBB_DEFAULT_DTOR_THROW_SPEC_BROKEN 1
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER < 1500 && !defined(__INTEL_COMPILER)
-    /** VS2005 and earlier do not allow declaring template class as a friend 
+    /** VS2005 and earlier do not allow declaring template class as a friend
         of classes defined in other namespaces. **/
     #define __TBB_TEMPLATE_FRIENDS_BROKEN 1
 #endif
@@ -302,23 +297,23 @@
 #endif
 
 #if __FreeBSD__
-    /** A bug in FreeBSD 8.0 results in kernel panic when there is contention 
+    /** A bug in FreeBSD 8.0 results in kernel panic when there is contention
         on a mutex created with this attribute. **/
     #define __TBB_PRIO_INHERIT_BROKEN 1
 
-    /** A bug in FreeBSD 8.0 results in test hanging when an exception occurs 
+    /** A bug in FreeBSD 8.0 results in test hanging when an exception occurs
         during (concurrent?) object construction by means of placement new operator. **/
     #define __TBB_PLACEMENT_NEW_EXCEPTION_SAFETY_BROKEN 1
 #endif /* __FreeBSD__ */
 
 #if (__linux__ || __APPLE__) && __i386__ && defined(__INTEL_COMPILER)
-    /** The Intel compiler for IA-32 (Linux|Mac OS X) crashes or generates 
+    /** The Intel compiler for IA-32 (Linux|Mac OS X) crashes or generates
         incorrect code when __asm__ arguments have a cast to volatile. **/
     #define __TBB_ICC_ASM_VOLATILE_BROKEN 1
 #endif
 
 #if !__INTEL_COMPILER && (_MSC_VER || __GNUC__==3 && __GNUC_MINOR__<=2)
-    /** Bug in GCC 3.2 and MSVC compilers that sometimes return 0 for __alignof(T) 
+    /** Bug in GCC 3.2 and MSVC compilers that sometimes return 0 for __alignof(T)
         when T has not yet been instantiated. **/
     #define __TBB_ALIGNOF_NOT_INSTANTIATED_TYPES_BROKEN 1
 #endif

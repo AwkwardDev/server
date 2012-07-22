@@ -1,7 +1,8 @@
-add_definitions("/D__TBBMALLOC_BUILD=1")
+add_definitions(
+  "-D__TBBMALLOC_BUILD=1")
 
 if(WIN32)
-  add_definitions("/DUSE_WINTHREAD") # TBB-specific
+  add_definitions("-DUSE_WINTHREAD")
   if(MSVC)
     add_definitions(
       # TBB-specific

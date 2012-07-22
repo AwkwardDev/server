@@ -68,17 +68,16 @@ int __TBB_load_ittnotify() {
 
 #endif /* DO_ITT_NOTIFY */
 
-#define __TBB_NO_IMPLICIT_LINKAGE 1
 #include "itt_notify.h"
 
 namespace tbb {
 
 #if DO_ITT_NOTIFY
-    const tchar 
+    const tchar
             *SyncType_GlobalLock = _T("TbbGlobalLock"),
             *SyncType_Scheduler = _T("%Constant")
             ;
-    const tchar 
+    const tchar
             *SyncObj_SchedulerInitialization = _T("TbbSchedulerInitialization"),
             *SyncObj_SchedulersList = _T("TbbSchedulersList"),
             *SyncObj_WorkerLifeCycleMgmt = _T("TBB Scheduler"),
@@ -94,4 +93,3 @@ namespace tbb {
 #endif /* DO_ITT_NOTIFY */
 
 } // namespace tbb
-

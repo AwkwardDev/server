@@ -156,14 +156,7 @@ bool  pool_free(MemoryPool *memPool, void *object);
 
 #include <new>      /* To use new with the placement argument */
 
-/* Ensure that including this header does not cause implicit linkage with TBB */
-#ifndef __TBB_NO_IMPLICIT_LINKAGE
-    #define __TBB_NO_IMPLICIT_LINKAGE 1
-    #include "tbb_stddef.h"
-    #undef  __TBB_NO_IMPLICIT_LINKAGE
-#else
-    #include "tbb_stddef.h"
-#endif
+#include "tbb_stddef.h"
 
 #if __TBB_CPP11_RVALUE_REF_PRESENT && !__TBB_CPP11_STD_FORWARD_BROKEN
  #include <utility> // std::forward
@@ -255,22 +248,6 @@ template<typename T, typename U>
 inline bool operator!=( const scalable_allocator<T>&, const scalable_allocator<U>& ) {return false;}
 
 } // namespace tbb
-
-#if _MSC_VER
-    #if (__TBB_BUILD || __TBBMALLOC_BUILD) && !defined(__TBBMALLOC_NO_IMPLICIT_LINKAGE)
-        #define __TBBMALLOC_NO_IMPLICIT_LINKAGE 1
-    #endif
-
-    #if !__TBBMALLOC_NO_IMPLICIT_LINKAGE
-        #ifdef _DEBUG
-            #pragma comment(lib, "tbbmalloc_debug.lib")
-        #else
-            #pragma comment(lib, "tbbmalloc.lib")
-        #endif
-    #endif
-
-
-#endif
 
 #endif /* __cplusplus */
 

@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # Force out-of-source build.
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
   message(FATAL_ERROR
     "This project requires an out of source build. "
     "Remove the file 'CMakeCache.txt' and the folder 'CMakeFiles' found in "
@@ -31,15 +31,10 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
     "and run 'cmake <srcs> [options]' from there.")
 endif()
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release")
-  set(DEBUG FALSE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-  set(DEBUG FALSE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(DEBUG TRUE)
-eles()
-  message(FATAL_ERROR "CMAKE_BUILD_TYPE must be 'Release' or 'Debug'")
+if(DEBUG)
+  set(CMAKE_BUILD_TYPE "Debug"   CACHE STRING "Use DEBUG instead." FORCE)
+else()
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Use DEBUG instead." FORCE)
 endif()
 
 include(Platform)
@@ -68,10 +63,10 @@ if(GIT_EXECUTABLE)
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
   if(GIT_RESULT) # if errorcode (GIT_RESULT != 0)
-    set(GIT_HASHSTRING "Git repository not found.")
+    set(GIT_HASHSTRING "\"Git repository not found.\"")
   endif()
 else()
-  set(GIT_HASHSTRING "Git not found.")
+  set(GIT_HASHSTRING "\"Git not found.\"")
 endif()
 
 configure_file(
