@@ -138,7 +138,7 @@ void init_tbbmalloc() {
     // Prevent Windows from displaying message boxes if it fails to load library
     UINT prev_mode = SetErrorMode (SEM_FAILCRITICALERRORS);
     HMODULE lib = LoadLibrary(MALLOCLIB_NAME);
-    MALLOC_ASSERT(lib, "Allocator can't load ifself.");
+    MALLOC_ASSERT(lib, "Allocator can't load itself.");
     SetErrorMode (prev_mode);
 #endif /* USE_PTHREAD && !__TBB_SOURCE_DIRECTLY_INCLUDED */
 }
