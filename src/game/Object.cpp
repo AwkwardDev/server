@@ -1231,9 +1231,9 @@ void WorldObject::MonsterYell(const char* text, uint32 language, Unit* target)
 void WorldObject::MonsterTextEmote(const char* text, Unit* target, bool IsBossEmote)
 {
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildMonsterChat(&data, GetObjectGuid(), IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, text, LANG_UNIVERSAL,
+	BuildMonsterChat(&data, GetObjectGuid(), IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, text, LANG_UNIVERSAL,
         GetName(), target ? target->GetObjectGuid() : ObjectGuid(), target ? target->GetName() : "");
-    SendMessageToSetInRange(&data, sWorld.getConfig(IsBossEmote ? CONFIG_FLOAT_LISTEN_RANGE_YELL : CONFIG_FLOAT_LISTEN_RANGE_TEXTEMOTE), true);
+	SendMessageToSetInRange(&data, sWorld.getConfig(IsBossEmote ? CONFIG_FLOAT_LISTEN_RANGE_YELL : CONFIG_FLOAT_LISTEN_RANGE_TEXTEMOTE), true);
 }
 
 void WorldObject::MonsterWhisper(const char* text, Unit* target, bool IsBossWhisper)
@@ -1328,9 +1328,15 @@ void WorldObject::MonsterWhisper(int32 textId, Unit* target, bool IsBossWhisper)
 
 void WorldObject::BuildMonsterChat(WorldPacket *data, ObjectGuid senderGuid, uint8 msgtype, char const* text, uint32 language, char const* name, ObjectGuid targetGuid, char const* targetName)
 {
+	bool isEmote = false;
+
+	if(msgtype == CHAT_MSG_MONSTER_EMOTE || msgtype == CHAT_MSG_RAID_BOSS_EMOTE)
+		isEmote = true;
+
     *data << uint8(msgtype);
-    *data << uint32(language);
-    *data << ObjectGuid(senderGuid);
+	*data << uint32(language);
+	if(!isEmote) //Sending this for CHAT_MSG_MONSTER_EMOTE breaks the packet
+		*data << uint64(senderGuid);
     *data << uint32(strlen(name)+1);
     *data << name;
     *data << ObjectGuid(targetGuid);                        // Unit Target
@@ -1339,7 +1345,9 @@ void WorldObject::BuildMonsterChat(WorldPacket *data, ObjectGuid senderGuid, uin
         *data << uint32(strlen(targetName)+1);              // target name length
         *data << targetName;                                // target name
     }
-    *data << (uint32)(strlen(text)+1);
+    *data << (uint32)(strlen(text)+1+(isEmote ? 3 : 0));
+	if(isEmote)
+		data->append("%s ", 3);
     *data << text;
     *data << (uint8)0;                                      // ChatTag
 }
