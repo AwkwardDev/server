@@ -15,15 +15,22 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+# Please respect the style used in this code.
+# Many good principles explained here:
+# http://www.aldebaran-robotics.com/documentation/qibuild/contrib/cmake/
+#   coding_guide.html
+
 project(Silverpine)
 set(SILVERPINE_VERSION 0.6.1)
 cmake_minimum_required(VERSION 2.8)
 
 # Where to find our modules (for find_package(...) and include(...)).
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH
+  "${CMAKE_SOURCE_DIR}/cmake"
+  "${CMAKE_SOURCE_DIR}/cmake/find")
 
 # Force out-of-source build.
-if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR
     "This project requires an out of source build. "
     "Remove the file 'CMakeCache.txt' and the folder 'CMakeFiles' found in "
@@ -32,14 +39,15 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 if(DEBUG)
-  set(CMAKE_BUILD_TYPE "Debug"   CACHE STRING "Use DEBUG instead." FORCE)
+  set(CMAKE_BUILD_TYPE "Debug"   CACHE INTERNAL "Use DEBUG instead." FORCE)
 else()
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Use DEBUG instead." FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE INTERNAL "Use DEBUG instead." FORCE)
 endif()
 
 include(Platform)
 include(Prefix)
 include(Options)
+include(Utils)
 include(PCH)
 include(Dependencies)
 include(CompilerFlags)
@@ -80,3 +88,4 @@ include(PrintConfig)
 
 add_subdirectory(dep)
 add_subdirectory(src)
+add_subdirectory(config)

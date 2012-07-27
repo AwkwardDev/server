@@ -21,9 +21,7 @@
 
 file(GLOB_RECURSE mangosscript_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp *.h)
 
-source_group("Other"
-  REGULAR_EXPRESSION .*
-)
+source_group("Other" REGULAR_EXPRESSION .*)
 
 foreach(SRC ${mangosscript_SRCS})
   get_filename_component(PTH ${SRC} PATH)
@@ -36,35 +34,39 @@ foreach(SRC ${mangosscript_SRCS})
 endforeach(SRC)
 
 include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}/base
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_SOURCE_DIR}/src/shared
-  ${CMAKE_SOURCE_DIR}/src/framework
-  ${CMAKE_SOURCE_DIR}/src/game
-  ${CMAKE_SOURCE_DIR}/dep/include
-  ${CMAKE_BINARY_DIR}
-  ${ACE_INCLUDE_DIR}
-  ${MYSQL_INCLUDE_DIR}
-)
+  "${CMAKE_CURRENT_SOURCE_DIR}/base"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  "${CMAKE_SOURCE_DIR}/src/shared"
+  "${CMAKE_SOURCE_DIR}/src/framework"
+  "${CMAKE_SOURCE_DIR}/src/game"
+  "${CMAKE_SOURCE_DIR}/dep/include"
+  "${CMAKE_BINARY_DIR}"
+  "${ACE_INCLUDE_DIR}"
+  "${MYSQL_INCLUDE_DIR}"
+  "${TBB_INCLUDE_DIR}")
 
-add_library(mangosscript SHARED
-  ${mangosscript_SRCS}
-)
+add_library(mangosscript SHARED ${mangosscript_SRCS})
 
 if(WIN32)
   # Location of mangosd.lib.
-  link_directories(
-    ${CMAKE_BINARY_DIR}/src/mangosd/${CMAKE_CFG_INTDIR}
-  )
+  link_directories(${CMAKE_BINARY_DIR}/src/mangosd/${CMAKE_CFG_INTDIR})
   target_link_libraries(mangosscript
     mangosd # FIXME: could this be done for unix? because unix won't generate exe.libs
-    ${ACE_LIBRARY}
   )
 endif()
 
-add_dependencies(mangosscript mangosd revision.h)
+add_dependencies(mangosscript revision.h)
+
 if(NOT ACE_USE_EXTERNAL)
   add_dependencies(mangosscript ace)
+  target_link_libraries(mangosscript "${ACE_LIBRARY}")
+endif()
+
+if(NOT USE_STD_MALLOC)
+  if(NOT TBB_USE_EXTERNAL)
+    add_dependencies(mangosscript tbbmalloc)
+  endif()
+  target_link_libraries(mangosscript "${TBB_LIBRARY}")
 endif()
 
 if(UNIX)
@@ -81,37 +83,17 @@ if(UNIX)
     set(mangosscript_PROPERTIES INSTALL_RPATH ${BIN_DIR})
   endif()
 
-  # Run out of build tree
-  set(mangosscript_PROPERTIES
-    ${mangosscript_PROPERTIES}
-    BUILD_WITH_INSTALL_RPATH OFF
-  )
-
   set_target_properties(mangosscript PROPERTIES
     LINK_FLAGS ${mangosscript_LINK_FLAGS}
-    ${mangosscript_PROPERTIES}
-  )
+    ${mangosscript_PROPERTIES})
 endif()
 
-# Because size for linker is to big - seriously ?!
-if(WIN32)
-  set_target_properties(mangosscript PROPERTIES
-      LINK_FLAGS_DEBUG "/DEBUG /INCREMENTAL:NO"
-  )
-endif()
-
-if(PCH)
-  include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}
-  )
-endif()
 add_precompiled_header(mangosscript
   "${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.h")
 
-# LIBRARY = dyld / so, RUNTIME = dll
-install(TARGETS mangosscript
-  LIBRARY DESTINATION ${BIN_DIR}
-  RUNTIME DESTINATION ${BIN_DIR}
-)
+install(TARGETS mangosscript DESTINATION "${BIN_DIR}")
 
-install(FILES scriptdevzero.conf.dist.in DESTINATION ${CONF_DIR} RENAME scriptdevzero.conf.dist)
+set(_distfile "${CMAKE_BINARY_DIR}/config/scriptdevzero.conf.dist")
+configure_file("scriptdevzero.conf.dist.in" "${_distfile}")
+install(FILES "${_distfile}" DESTINATION "${CONF_DIR}")
+_install_pdb_file(mangosscript "${BIN_DIR}")

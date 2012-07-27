@@ -34,6 +34,9 @@
 #include <openssl/crypto.h>
 #include <ace/Version.h>
 #include <ace/Get_Opt.h>
+#include <ace/ACE.h>
+#include <ace/OS_NS_stdlib.h>
+#include <ace/OS_NS_unistd.h>
 
 #ifdef WIN32
 #include "ServiceWin32.h"
@@ -154,6 +157,13 @@ extern int main(int argc, char **argv)
             break;
     }
 #endif
+
+    // Set the current directory to the executable location.
+    // Useful for giving the location of configuration files relative to the
+    // location of the executable.
+    char *realpath = ACE_OS::realpath(argv[0], NULL);
+    ACE_OS::chdir(ACE::basename(realpath));
+    free(realpath);
 
     if (!sConfig.SetSource(cfg_file))
     {

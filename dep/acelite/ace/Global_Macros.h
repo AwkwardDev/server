@@ -46,7 +46,7 @@
 // Win32 (in the moment).
 # if defined (ACE_WIN32)
 
-#   if defined (_DEBUG) && !defined (ACE_HAS_WINCE) && !defined (__BORLANDC__)
+#   if defined (_DEBUG) && !defined (ACE_HAS_WINCE) && !defined (__BORLANDC__) && !defined(__MINGW32__)
 # include /**/ <crtdbg.h>
 
 // Open versioned namespace, if enabled by the user.

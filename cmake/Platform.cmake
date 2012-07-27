@@ -2,6 +2,11 @@
 #
 ### Defined Variables
 # PLATFORM, X86 or X64 or IPF64, 32BITS or 64BITS
+# MULTICONFIG_GENERATOR or MAKEFILE_GENERATOR
+# VISUAL_STUDIO
+
+if(NOT _PLATFORM_INCLUDED)
+set(_PLATFORM_INCLUDED TRUE)
 
 if(CMAKE_SIZEOF_VOID_P MATCHES 8)
     if(WIN32)
@@ -20,8 +25,9 @@ if(CMAKE_SIZEOF_VOID_P MATCHES 8)
       endif()
     else()
       execute_process(
-        COMMAND "uname -m"
+        COMMAND uname -m
         OUTPUT_VARIABLE UNAME_M
+        OUTPUT_STRIP_TRAILING_WHITESPACE
       )
       if(UNAME_M STREQUAL "x86_64")
         set(X64 TRUE)
@@ -40,3 +46,14 @@ elseif(CMAKE_SIZEOF_VOID_P MATCHES 4)
 else()
     message(FATAL_ERROR "Pointers are neither 4 or 8 bytes. WTF ?")
 endif()
+
+if(CMAKE_GENERATOR MATCHES "Visual.*")
+  set(VISUAL_STUDIO TRUE)
+endif()
+if(CMAKE_GENERATOR MATCHES "[^\\-]*Make.*")
+  set(MAKEFILE_GENERATOR TRUE)
+else()
+  set(MULTICONFIG_GENERATOR TRUE)
+endif()
+
+endif(NOT _PLATFORM_INCLUDED)

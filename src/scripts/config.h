@@ -50,10 +50,9 @@
   #else
     #define _FULLVERSION _VERSION " (Win32)"
   #endif
-  #define _SCRIPTDEVZERO_CONFIG  "scriptdevzero.conf"
 #else
   #define _FULLVERSION _VERSION " (Unix)"
-  #define _SCRIPTDEVZERO_CONFIG  SYSCONFDIR"scriptdevzero.conf"
 #endif
+#define _SCRIPTDEVZERO_CONFIG  SYSCONFDIR"scriptdevzero.conf"
 
 #endif

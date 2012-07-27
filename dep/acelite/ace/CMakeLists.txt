@@ -345,3 +345,4 @@ add_precompiled_header(ace
   "${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/WinAcePCH.h")
 
 install(TARGETS ace RUNTIME DESTINATION "${BIN_DIR}")
+_install_pdb_file(ace "${BIN_DIR}")

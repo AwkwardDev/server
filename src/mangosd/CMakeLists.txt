@@ -20,26 +20,21 @@ file(GLOB_RECURSE EXECUTABLE_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   *.cpp *.h)
 
 if(WIN32)
-  list(APPEND EXECUTABLE_SRCS
-    mangosd.rc
-  )
+  list(APPEND EXECUTABLE_SRCS mangosd.rc)
 endif()
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/src/shared
-  ${CMAKE_SOURCE_DIR}/dep/include/gsoap
-  ${CMAKE_SOURCE_DIR}/src/framework
-  ${CMAKE_SOURCE_DIR}/src/game
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_BINARY_DIR}/src/shared
-  ${ACE_INCLUDE_DIR}
-  ${MYSQL_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
-)
+  "${CMAKE_SOURCE_DIR}/src/shared"
+  "${CMAKE_SOURCE_DIR}/dep/include/gsoap"
+  "${CMAKE_SOURCE_DIR}/src/framework"
+  "${CMAKE_SOURCE_DIR}/src/game"
+  "${CMAKE_BINARY_DIR}"
+  "${CMAKE_BINARY_DIR}/src/shared"
+  "${ACE_INCLUDE_DIR}"
+  "${MYSQL_INCLUDE_DIR}"
+  "${OPENSSL_INCLUDE_DIR}")
 
-add_executable(${EXECUTABLE_NAME}
-  ${EXECUTABLE_SRCS}
-)
+add_executable(${EXECUTABLE_NAME} ${EXECUTABLE_SRCS})
 
 if(NOT ACE_USE_EXTERNAL)
   add_dependencies(${EXECUTABLE_NAME} ace)
@@ -51,35 +46,26 @@ target_link_libraries(${EXECUTABLE_NAME}
   framework
   g3dlite
   gsoap
-  ${ACE_LIBRARY}
-)
+  ${ACE_LIBRARY})
 
 if(WIN32)
   target_link_libraries(${EXECUTABLE_NAME}
     zlib
-    optimized ${MYSQL_LIBRARY}
-    optimized ${OPENSSL_LIBRARIES}
-    debug ${MYSQL_DEBUG_LIBRARY}
-    debug ${OPENSSL_DEBUG_LIBRARIES}
-  )
-  if(PLATFORM MATCHES X86)
-    target_link_libraries(${EXECUTABLE_NAME})
-  endif()
+    "${MYSQL_LIBRARY}"
+    "${OPENSSL_LIBRARY}")
+  add_dependencies(${EXECUTABLE_NAME} mysql_openssl)
 endif()
 
 if(UNIX)
   target_link_libraries(${EXECUTABLE_NAME}
-    ${MYSQL_LIBRARY}
-    ${OPENSSL_LIBRARIES}
-    ${OPENSSL_EXTRA_LIBRARIES}
-    ${ZLIB_LIBRARIES}
-  )
+    "${MYSQL_LIBRARY}"
+    "${OPENSSL_LIBRARY}"
+    "${OPENSSL_EXTRA_LIBRARIES}"
+    "${ZLIB_LIBRARIES}")
 endif()
 
-set(EXECUTABLE_LINK_FLAGS "")
-
 if(UNIX)
-  set(EXECUTABLE_LINK_FLAGS "-pthread ${EXECUTABLE_LINK_FLAGS} -rdynamic")
+  set(EXECUTABLE_LINK_FLAGS "-pthread -rdynamic")
 endif()
 
 if(APPLE)
@@ -89,16 +75,12 @@ endif()
 # ENABLE_EXPORTS allows the script library to call into the executable.
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES
   LINK_FLAGS        "${EXECUTABLE_LINK_FLAGS}"
-  ENABLE_EXPORTS    TRUE
-)
+  ENABLE_EXPORTS    TRUE)
 
 install(TARGETS ${EXECUTABLE_NAME} DESTINATION ${BIN_DIR})
 install(FILES run-mangosd DESTINATION ${BIN_DIR})
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mangosd.conf.dist.in ${CMAKE_CURRENT_BINARY_DIR}/mangosd.conf.dist)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mangosd.conf.dist DESTINATION ${CONF_DIR})
 
-if(WIN32 AND MSVC)
-  set(_pdb "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}")
-  set(_pdb "${_pdb}/${EXECUTABLE_NAME}.pdb")
-  install(FILES "${_pdb}" DESTINATION ${BIN_DIR} CONFIGURATIONS Debug)
-endif()
+set(_distfile "${CMAKE_BINARY_DIR}/config/mangosd.conf.dist")
+configure_file("mangosd.conf.dist.in" "${_distfile}")
+install(FILES "${_distfile}" DESTINATION "${CONF_DIR}")
+_install_pdb_file("${EXECUTABLE_NAME}" "${BIN_DIR}")

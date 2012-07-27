@@ -84,4 +84,4 @@ if(NOT ACE_USE_EXTERNAL)
   add_dependencies(game ace)
 endif()
 
-add_precompiled_header(game ${CMAKE_CURRENT_SOURCE_DIR}/pchdef.h)
+add_precompiled_header(game pchdef.h)

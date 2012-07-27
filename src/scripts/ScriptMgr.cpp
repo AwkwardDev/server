@@ -65,7 +65,6 @@ void LoadDatabase()
     }
 
     SD0Database.HaltDelayThread();
-
 }
 
 struct TSpellSummary {

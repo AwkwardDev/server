@@ -15,35 +15,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#-- Macro Definitions ----------------------------------------------------------
-
-set(DEFINITIONS
+# Macro Definitions
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
   DO_MYSQL
   HAVE_CONFIG_H
   VERSION="${SILVERPINE_VERSION}"
-  SYSCONFDIR="${CONF_DIR}/"
-)
-
-set(DEFINITIONS_RELEASE NDEBUG)
-set(DEFINITIONS_DEBUG _DEBUG MANGOS_DEBUG)
-
-if(WIN32)
-  set(DEFINITIONS ${DEFINITIONS} WIN32 _WIN32)
-  set(DEFINITIONS_RELEASE ${DEFINITIONS_RELEASE} _CRT_SECURE_NO_WARNINGS)
-endif()
-
+  SYSCONFDIR="${CONF_DIR_REL}/")
 if(USE_STD_MALLOC)
-  set(DEFINITIONS ${DEFINITIONS} USE_STANDARD_MALLOC)
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
+    "USE_STANDARD_MALLOC")
 endif()
-
-set_directory_properties(PROPERTIES COMPILE_DEFINITIONS
-  "${DEFINITIONS}")
-set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_RELEASE
-  "${DEFINITIONS_RELEASE}")
-set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_DEBUG
-  "${DEFINITIONS_DEBUG}")
-
-#-------------------------------------------------------------------------------
 
 if(WIN32)
   # To access some headers via <project_name>/<header_name>.h.

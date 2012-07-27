@@ -1,8 +1,5 @@
-# Handle debugmode compiles (this will require further work for proper WIN32-setups)
-if(UNIX)
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-endif()
+if(NOT _COMPILERFLAGS_INCLUDED)
+set(_COMPILERFLAGS_INCLUDED)
 
 if(UNIX)
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} --no-warnings")
@@ -34,3 +31,17 @@ endif()
 if(MSVC AND X86)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
 endif()
+
+# Set important macros.
+set(_defs_release _RELEASE _NDEBUG)
+set(_defs_debug _DEBUG MANGOS_DEBUG)
+if(WIN32)
+  set(_defs WIN32 _WIN32)
+  list(APPEND _defs_release _CRT_SECURE_NO_WARNINGS)
+endif()
+set_directory_properties(PROPERTIES
+  COMPILE_DEFINITIONS           "${_defs}"
+  COMPILE_DEFINITIONS_RELEASE   "${_defs_release}"
+  COMPILE_DEFINITIONS_DEBUG     "${_defs_debug}")
+
+endif(NOT _COMPILERFLAGS_INCLUDED)

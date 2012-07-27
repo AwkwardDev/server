@@ -1491,7 +1491,7 @@ void* System::alignedMalloc(size_t bytes, size_t alignment) {
 
     debugAssert(isValidHeapPointer((void*)truePtr));
 
-    #ifdef G3D_WIN32
+    #if defined(G3D_WIN32) && !defined(__MINGW32__)
         debugAssert( _CrtIsValidPointer((void*)alignedPtr, bytes, TRUE) );
     #endif
     return (void *)alignedPtr;

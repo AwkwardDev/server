@@ -74,3 +74,4 @@ include_directories(. ..)
 
 add_library(tbbmalloc SHARED ${tbbmalloc_SRCS})
 install(TARGETS tbbmalloc RUNTIME DESTINATION "${BIN_DIR}")
+_install_pdb_file(tbbmalloc "${BIN_DIR}")
