@@ -13,7 +13,9 @@
 # Precompiles the header ${_header} for target ${_target}. If you are using
 # MSVC, you need to have a file called the same as the header (but with .cpp
 # extension) in the sources of the target. This file should just include the
-# header file. Nothing else needs to be done.
+# header file. Nothing else needs to be done. Important: the header must passed
+# with the same path than the one with wich the cpp file was added to the
+# target. (So it's probably a relative path you want.)
 #
 # If for some reason there is a mismatch between the command used to compile
 # the header and the command used to compile the objects files with GCC, you can
@@ -137,6 +139,7 @@ endfunction()
 
 function(add_precompiled_header _target _header)
 if(PCH)
+  set(_header_orig "${_header}")
   get_filename_component(_header "${_header}" ABSOLUTE)
 
   if(CMAKE_COMPILER_IS_GNUCXX)
@@ -155,8 +158,11 @@ if(PCH)
     add_dependencies("${_target}" "pch_${_target}")
 
     # Add the precompile flags to the target.
-    set_property(TARGET "${_target}" APPEND_STRING PROPERTY COMPILE_FLAGS
-      " -I${CMAKE_CURRENT_BINARY_DIR} -include ${_header_name} -Winvalid-pch")
+    # FUTURE Change to APPEND_STRING when switching to 2.9.
+    get_target_property("${_target}" _cflags COMPILE_FLAGS)
+    set(_cflags "${_cflags} -I${CMAKE_CURRENT_BINARY_DIR}")
+    set(_cflags "${_cflags} -include ${_header_name} -Winvalid-pch")
+    set_target_properties("${_target}" PROPERTIES COMPILE_FLAGS "${_cflags}")
 
   elseif(MSVC)
 
@@ -183,13 +189,21 @@ if(PCH)
 
     set(_header_esc "\"${_header}\"")
     set(_output_esc "\"${_output}\"")
+    _change_ext(_cpp_file "${_header}" cpp)
 
     # Add the precompiled header creation flags to the source file.
-    get_filename_component(_name_we "${_header}" NAME_WE)
-    get_filename_component(_path    "${_header}" PATH)
-    set_property(SOURCE "${_path}/${_name_we}.cpp"
+    set_property(SOURCE "${_cpp_file}"
       APPEND_STRING PROPERTY COMPILE_FLAGS
       " /Fp${_output_esc} /Yc${_header_esc}")
+
+    # Explicitly encode the dependency between sources files (the file
+    # generating the header excepted) and the precompiled header.
+    get_target_property(_sources "${_target}" SOURCES)
+    list(REMOVE_ITEM _sources "${_cpp_file}")
+    set_source_files_properties(${_sources} PROPERTIES
+      OBJECT_DEPENDS "${_output}")
+    set_source_files_properties("${_cpp_file}" PROPERTIES
+      OBJECT_OUTPUTS "${_output}")
 
     # Add the precompiled header usage flags to the target.
     set_property(TARGET "${_target}" APPEND_STRING PROPERTY COMPILE_FLAGS

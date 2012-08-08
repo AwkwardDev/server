@@ -1,9 +1,21 @@
 # Find out the platform we are running on.
 #
 ### Defined Variables
-# PLATFORM, X86 or X64 or IPF64, 32BITS or 64BITS
+# PLATFORM (with values "X86", "X64" or "IPF64")
+# X86 or X64 or IPF64
+# 32BITS or 64BITS
 # MULTICONFIG_GENERATOR or MAKEFILE_GENERATOR
 # VISUAL_STUDIO
+# LINUX
+# MACOSX
+#
+### Similar Built-In Variables
+# UNIX      Unix systems (including MacOS & Cygwin).
+# WIN32     Windows systems (both 32 and 64 bits, and includes Cygwin).
+# MSYS      Using MSYS development environment.
+# MSVC or MINGW or CYGWIN or BORLAND or WATCOM (or none)
+# CMAKE_COMPILE_IS_GNUCC / CMAKE_COMPILER_IS_GNUCXX
+#   If the compiler is (a variant of) gcc/g++.
 
 if(NOT _PLATFORM_INCLUDED)
 set(_PLATFORM_INCLUDED TRUE)
@@ -50,10 +62,19 @@ endif()
 if(CMAKE_GENERATOR MATCHES "Visual.*")
   set(VISUAL_STUDIO TRUE)
 endif()
+
 if(CMAKE_GENERATOR MATCHES "[^\\-]*Make.*")
   set(MAKEFILE_GENERATOR TRUE)
 else()
   set(MULTICONFIG_GENERATOR TRUE)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(LINUX TRUE)
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  set(MACOSX TRUE)
 endif()
 
 endif(NOT _PLATFORM_INCLUDED)

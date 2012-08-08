@@ -11,6 +11,7 @@
 
 # Top-level generic files
 build*
+config/*.conf
 tags
 TAGS
 !.gitignore

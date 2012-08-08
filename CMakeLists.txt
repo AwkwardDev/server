@@ -24,7 +24,7 @@ project(Silverpine)
 set(SILVERPINE_VERSION 0.6.1)
 cmake_minimum_required(VERSION 2.8)
 
-# Where to find our modules (for find_package(...) and include(...)).
+# Where to find our custom modules (for  include(...) and find_package(...)).
 set(CMAKE_MODULE_PATH
   "${CMAKE_SOURCE_DIR}/cmake"
   "${CMAKE_SOURCE_DIR}/cmake/find")

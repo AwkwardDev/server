@@ -29,12 +29,17 @@ endif()
 
 # The install directory is PREFIX converted to absolute path, else the default
 # install directory will be used.
-if(PREFIX)
-  get_filename_component(CMAKE_INSTALL_PREFIX "${PREFIX}" ABSOLUTE)
-else()
-    # Add the variable to the cache so that users may override it.
-    set(PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH "Install prefix.")
+if(NOT PREFIX)
+  if(LINUX)
+    # Instead of /usr/local.
+    set(_install_prefix_def "/usr/local/bin/${PROJECT_NAME}")
+  else()
+    set(_install_prefix_def "${CMAKE_INSTALL_PREFIX}")
+  endif()
+  # Add the variable to the cache so that users may override it.
+  set(PREFIX "${_install_prefix_def}" CACHE PATH "Install prefix.")
 endif()
+get_filename_component(CMAKE_INSTALL_PREFIX "${PREFIX}" ABSOLUTE)
 
 # Hide CMAKE_INSTALL_PREFIX from the GUI.
 set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE INTERNAL

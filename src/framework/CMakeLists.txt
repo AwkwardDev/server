@@ -28,7 +28,7 @@ source_group("Dynamic"          REGULAR_EXPRESSION Dynamic)
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}"
   "${ACE_INCLUDE_DIR}"
-  "${TBB_INCLUDE_DIR}")
+  "${TBBMalloc_INCLUDE_DIR}")
 
 add_library(framework STATIC ${framework_SRCS})
 
@@ -36,7 +36,7 @@ if(NOT USE_STD_MALLOC)
   if(NOT TBB_USE_EXTERNAL)
     add_dependencies(framework tbbmalloc)
   endif()
-  target_link_libraries(framework "${TBB_LIBRARY}")
+  target_link_libraries(framework "${TBBMalloc_LIBRARY}")
 endif()
 
 if(NOT ACE_USE_EXTERNAL)

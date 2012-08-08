@@ -43,7 +43,7 @@ include_directories(
   "${CMAKE_BINARY_DIR}"
   "${ACE_INCLUDE_DIR}"
   "${MYSQL_INCLUDE_DIR}"
-  "${TBB_INCLUDE_DIR}")
+  "${TBBMalloc_INCLUDE_DIR}")
 
 add_library(mangosscript SHARED ${mangosscript_SRCS})
 
@@ -66,7 +66,7 @@ if(NOT USE_STD_MALLOC)
   if(NOT TBB_USE_EXTERNAL)
     add_dependencies(mangosscript tbbmalloc)
   endif()
-  target_link_libraries(mangosscript "${TBB_LIBRARY}")
+  target_link_libraries(mangosscript "${TBBMalloc_LIBRARY}")
 endif()
 
 if(UNIX)
@@ -88,8 +88,7 @@ if(UNIX)
     ${mangosscript_PROPERTIES})
 endif()
 
-add_precompiled_header(mangosscript
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.h")
+add_precompiled_header(mangosscript include/precompiled.h)
 
 install(TARGETS mangosscript DESTINATION "${BIN_DIR}")
 

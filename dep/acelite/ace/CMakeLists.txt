@@ -320,10 +320,9 @@ set(ace_STAT_SRCS
 )
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/dep/acelite
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
-  ${CMAKE_SOURCE_DIR}/dep/zlib
-)
+  "${CMAKE_SOURCE_DIR}/dep/acelite"
+  "${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders"
+  "${CMAKE_SOURCE_DIR}/dep/zlib")
 
 # Needed for PCH support.
 set_source_files_properties(
@@ -339,10 +338,11 @@ if(MINGW)
   # Winsock library & friends. Important to add them like this so that the -l
   # flags (e.g. -lws2_32) end up after the objects in the command line.
   target_link_libraries(ace ws2_32 netapi32 mswsock)
+elseif(LINUX)
+  target_link_libraries(ace rt)
 endif()
 
-add_precompiled_header(ace
-  "${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/WinAcePCH.h")
+add_precompiled_header(ace PrecompiledHeaders/WinAcePCH.h)
 
-install(TARGETS ace RUNTIME DESTINATION "${BIN_DIR}")
+install(TARGETS ace DESTINATION "${BIN_DIR}")
 _install_pdb_file(ace "${BIN_DIR}")

@@ -1,5 +1,4 @@
-add_definitions(
-  "-D__TBBMALLOC_BUILD=1")
+add_definitions("-D__TBBMALLOC_BUILD=1")
 
 if(WIN32)
   add_definitions("-DUSE_WINTHREAD")
@@ -13,18 +12,10 @@ if(WIN32)
       "/wd4800")
   elseif(MINGW)
     add_definitions(
-      "-D_WIN32_WINNT=0x0501"
-      "-DMINGW_HAS_SECURE_API=1"
-      "-D__MSVCRT_VERSION__=0x0700"
-      "-msse"
-      "-mthreads"
-      "-m32"
-      "-march=i686"
-      "-fno-rtti"
-      "-fno-exceptions"
-      "-Wno-parentheses"
-      "-Wno-uninitialized"
-      )
+      "-msse"           # enable use of SSE instructions
+      "-fno-rtti"       # disable dynamic_cast, typeid, ...
+      "-fno-exceptions" # disable exceptions
+    )
   endif()
 endif()
 
@@ -73,5 +64,10 @@ set(tbbmalloc_SRCS
 include_directories(. ..)
 
 add_library(tbbmalloc SHARED ${tbbmalloc_SRCS})
-install(TARGETS tbbmalloc RUNTIME DESTINATION "${BIN_DIR}")
+if(LINUX)
+  # TODO change this in the code ?
+  set_target_properties(tbbmalloc PROPERTIES SUFFIX .so.2)
+endif()
+
+install(TARGETS tbbmalloc DESTINATION "${BIN_DIR}")
 _install_pdb_file(tbbmalloc "${BIN_DIR}")

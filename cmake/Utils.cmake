@@ -19,10 +19,10 @@ endif()
 function(_split_cmd _out _str)
 
   # Find a substring which is not a substring of _str.
-  while(NOT DEFINED _found OR NOT _found EQUAL "-1")
+  while(NOT DEFINED _found OR _found)
     # Note that RANDOM default alphabet has only letters and numbers.
     string(RANDOM _uniq)
-    string(FIND "${_str}" "${_uniq}" _found)
+    string(REGEX MATCH "${_uniq}" _found "${_str}")
   endwhile()
 
   # Match every pair of double quotes, then replace in _str the spaces in each

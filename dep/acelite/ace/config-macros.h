@@ -23,8 +23,12 @@
 
 #ifdef _WIN32
   #include "ace/config-win32.h"
-#else
-  #include "ace/config.h"
+#endif
+#ifdef __APPLE__
+  #include "ace/config-macosx.h"
+#endif
+#ifdef __linux__
+  #include "ace/config-linux.h"
 #endif
 
 #include "ace/Version.h"
