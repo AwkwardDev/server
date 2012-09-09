@@ -648,6 +648,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
 
     m_playerLoading = false;
+    m_clientTimeDelay = 0;
     delete holder;
 }
 

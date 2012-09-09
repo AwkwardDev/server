@@ -485,7 +485,7 @@ enum UnitFlags
     UNIT_FLAG_PLAYER_CONTROLLED     = 0x01000000,           // used in spell Eyes of the Beast for pet... let attack by controlled creature
 //[-ZERO]    UNIT_FLAG_MOUNT                 = 0x08000000,
     UNIT_FLAG_UNK_28                = 0x10000000,
-    UNIT_FLAG_UNK_29                = 0x20000000,           // used in Feing Death spell
+    UNIT_FLAG_UNK_29                = 0x20000000,           // used in Feign Death spell
 };
 
 /// Non Player Character flags
@@ -510,43 +510,68 @@ enum NPCFlags
     UNIT_NPC_FLAG_OUTDOORPVP            = 0x20000000,       // custom flag for outdoor pvp creatures || Custom flag
 };
 
-// [-ZERO] Need check and update
+// Taken from Ascent 1.12 downport
 // used in most movement packets (send and received)
 enum MovementFlags
 {
-    MOVEFLAG_NONE               = 0x00000000,
-    MOVEFLAG_FORWARD            = 0x00000001,
-    MOVEFLAG_BACKWARD           = 0x00000002,
-    MOVEFLAG_STRAFE_LEFT        = 0x00000004,
-    MOVEFLAG_STRAFE_RIGHT       = 0x00000008,
-    MOVEFLAG_TURN_LEFT          = 0x00000010,
-    MOVEFLAG_TURN_RIGHT         = 0x00000020,
-    MOVEFLAG_PITCH_UP           = 0x00000040,
-    MOVEFLAG_PITCH_DOWN         = 0x00000080,
-    MOVEFLAG_WALK_MODE          = 0x00000100,               // Walking
+    // Byte 1 (Resets on Movement Key Press)
+    MOVEFLAG_MOVE_STOP                  = 0x00,			//verified
+    MOVEFLAG_MOVE_FORWARD				= 0x01,			//verified
+    MOVEFLAG_MOVE_BACKWARD				= 0x02,			//verified
+    MOVEFLAG_STRAFE_LEFT				= 0x04,			//verified
+    MOVEFLAG_STRAFE_RIGHT				= 0x08,			//verified
+    MOVEFLAG_TURN_LEFT					= 0x10,			//verified
+    MOVEFLAG_TURN_RIGHT					= 0x20,			//verified
+    MOVEFLAG_PITCH_DOWN					= 0x40,			//Unconfirmed
+    MOVEFLAG_PITCH_UP					= 0x80,			//Unconfirmed
 
-    MOVEFLAG_LEVITATING         = 0x00000400,
-    MOVEFLAG_ROOT               = 0x00000800,               // [-ZERO] is it really need and correct value
-    MOVEFLAG_FALLING            = 0x00002000,
-    MOVEFLAG_FALLINGFAR         = 0x00004000,
-    MOVEFLAG_SWIMMING           = 0x00200000,               // appears with fly flag also
-    MOVEFLAG_ASCENDING          = 0x00400000,               // [-ZERO] is it really need and correct value
-    MOVEFLAG_CAN_FLY            = 0x00800000,               // [-ZERO] is it really need and correct value
-    MOVEFLAG_FLYING             = 0x01000000,               // [-ZERO] is it really need and correct value
+    // Byte 2 (Resets on Situation Change)
+    MOVEFLAG_WALK_MODE					= 0x100,		//verified
+    MOVEFLAG_TAXI						= 0x2000000,		
 
-    MOVEFLAG_ONTRANSPORT        = 0x02000000,               // Used for flying on some creatures
-    MOVEFLAG_SPLINE_ELEVATION   = 0x04000000,               // used for flight paths
-    MOVEFLAG_SPLINE_ENABLED     = 0x08000000,               // used for flight paths
-    MOVEFLAG_WATERWALKING       = 0x10000000,               // prevent unit from falling through water
-    MOVEFLAG_SAFE_FALL          = 0x20000000,               // active rogue safe fall spell (passive)
-    MOVEFLAG_HOVER              = 0x40000000
+    MOVEFLAG_NO_COLLISION				= 0x400,
+    MOVEFLAG_FLYING	    				= 0x800,		//verified
+    MOVEFLAG_REDIRECTED					= 0x1000,		//Unconfirmed
+    MOVEFLAG_FALLING					= 0x2000,       //verified
+    MOVEFLAG_FALLING_FAR				= 0x4000,		//verified
+    MOVEFLAG_FREE_FALLING				= 0x8000,		//half verified
+
+    // Byte 3 (Set by server. TB = Third Byte. Completely unconfirmed.)
+    MOVEFLAG_TB_PENDING_STOP			= 0x10000,		// (MOVEFLAG_PENDING_STOP)
+    MOVEFLAG_TB_PENDING_UNSTRAFE		= 0x20000,		// (MOVEFLAG_PENDING_UNSTRAFE)
+    MOVEFLAG_TB_PENDING_FALL			= 0x40000,		// (MOVEFLAG_PENDING_FALL)
+    MOVEFLAG_TB_PENDING_FORWARD			= 0x80000,		// (MOVEFLAG_PENDING_FORWARD)
+    MOVEFLAG_TB_PENDING_BACKWARD		= 0x100000,		// (MOVEFLAG_PENDING_BACKWARD)
+    MOVEFLAG_SWIMMING          		    = 0x200000,		//  verified
+    MOVEFLAG_FLYING_PITCH_UP	        = 0x400000,		// (half confirmed)(MOVEFLAG_PENDING_STR_RGHT)
+    MOVEFLAG_TB_MOVED					= 0x800000,		// (half confirmed) gets called when landing (MOVEFLAG_MOVED)
+
+    // Byte 4 (Script Based Flags. Never reset, only turned on or off.)
+    MOVEFLAG_AIR_SUSPENSION	   	 		= 0x1000000,	// confirmed allow body air suspension(good name? lol).
+    MOVEFLAG_SPLINE_MOVER				= 0x4000000,	// Unconfirmed
+    MOVEFLAG_IMMOBILIZED				= 0x8000000,
+    MOVEFLAG_WATER_WALK					= 0x10000000,
+    MOVEFLAG_FEATHER_FALL				= 0x20000000,	// Does not negate fall damage.
+    MOVEFLAG_LEVITATE					= 0x40000000,
+    MOVEFLAG_LOCAL						= 0x80000000,	// This flag defaults to on. (Assumption)
+
+    // Masks
+    MOVEFLAG_MOVING_MASK				= 0x03,
+    MOVEFLAG_STRAFING_MASK				= 0x0C,
+    MOVEFLAG_TURNING_MASK				= 0x30,
+    MOVEFLAG_FALLING_MASK				= 0x6000,
+    MOVEFLAG_MOTION_MASK				= 0xE00F,		// Forwards, Backwards, Strafing, Falling
+    MOVEFLAG_PENDING_MASK				= 0x7F0000,
+    MOVEFLAG_PENDING_STRAFE_MASK		= 0x600000,
+    MOVEFLAG_PENDING_MOVE_MASK			= 0x180000,
+    MOVEFLAG_FULL_FALLING_MASK			= 0xE000,
 };
 
 // flags that use in movement check for example at spell casting
 MovementFlags const movementFlagsMask = MovementFlags(
-    MOVEFLAG_FORWARD |MOVEFLAG_BACKWARD  |MOVEFLAG_STRAFE_LEFT |MOVEFLAG_STRAFE_RIGHT|
-    MOVEFLAG_PITCH_UP|MOVEFLAG_PITCH_DOWN|MOVEFLAG_ROOT        |
-    MOVEFLAG_FALLING |MOVEFLAG_FALLINGFAR|MOVEFLAG_SPLINE_ELEVATION
+    MOVEFLAG_MOVE_FORWARD |MOVEFLAG_MOVE_BACKWARD  |MOVEFLAG_STRAFE_LEFT |MOVEFLAG_STRAFE_RIGHT|
+    MOVEFLAG_PITCH_UP|MOVEFLAG_PITCH_DOWN|
+    MOVEFLAG_FALLING |MOVEFLAG_FALLING_FAR|MOVEFLAG_SPLINE_MOVER
 );
 
 MovementFlags const movementOrTurningFlagsMask = MovementFlags(
@@ -579,7 +604,7 @@ enum SplineType
 class MovementInfo
 {
     public:
-        MovementInfo() : moveFlags(MOVEFLAG_NONE), time(0),
+        MovementInfo() : moveFlags(MOVEFLAG_MOVE_STOP), time(0),
             t_time(0), s_pitch(0.0f), fallTime(0), u_unk1(0.0f) {}
 
         // Read/Write methods
@@ -645,6 +670,10 @@ class MovementInfo
         JumpInfo jump;
         // spline
         float   u_unk1;
+        // unknown
+        uint8 unk13;
+        uint32 unklast; // something to do with collision? (according to Ascent)
+
 };
 
 inline ByteBuffer& operator<< (ByteBuffer& buf, MovementInfo const& mi)
