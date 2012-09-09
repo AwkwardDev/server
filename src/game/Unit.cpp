@@ -54,17 +54,6 @@
 #include <math.h>
 #include <stdarg.h>
 
-#ifdef WIN32
-__forceinline uint32 getMSTime() { return GetTickCount(); }
-#else
-__forceinline uint32 getMSTime()
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-}
-#endif
-
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
     2.5f,                                                   // MOVE_WALK
@@ -80,81 +69,78 @@ float baseMoveSpeed[MAX_MOVE_TYPE] =
 
 void MovementInfo::Read(ByteBuffer &data)
 {
-    unk13 = 0;
-    data >> moveFlags >> time;
-    data >> pos.x >> pos.y >> pos.z >> pos.o;
+    data >> moveFlags;
+    data >> time;
+    data >> pos.x;
+    data >> pos.y;
+    data >> pos.z;
+    data >> pos.o;
 
-    if(HasMovementFlag(MOVEFLAG_TAXI))
+    if(HasMovementFlag(MOVEFLAG_ONTRANSPORT))
     {
         data >> t_guid;
         data >> t_pos.x;
         data >> t_pos.y;
         data >> t_pos.z;
         data >> t_pos.o;
-        data >> t_time;
     }
     if(HasMovementFlag(MOVEFLAG_SWIMMING))
     {
         data >> s_pitch;
     }
 
-    if(HasMovementFlag(MOVEFLAG_FALLING) || HasMovementFlag(MOVEFLAG_REDIRECTED))
+    data >> fallTime;
+
+    if(HasMovementFlag(MOVEFLAG_FALLING))
     {
-        data >> fallTime;
+        data >> jump.velocity;
         data >> jump.sinAngle;
         data >> jump.cosAngle;
         data >> jump.xyspeed;
     }
 
-    if(HasMovementFlag(MOVEFLAG_SPLINE_MOVER))
+    if(HasMovementFlag(MOVEFLAG_SPLINE_ELEVATION))
     {
         data >> u_unk1;                                     // unknown
     }
-
-	data >> unklast;
-	if(data.rpos() != data.wpos())
-	{
-        if(data.rpos() + 4 == data.wpos())
-            data >> unk13;
-        else
-            sLog.outDebug("Extra bits of movement packet left");
-	}
 }
 
 void MovementInfo::Write(ByteBuffer &data) const
 {
-    data << moveFlags << time;
-    data << pos.x << pos.y << pos.z << pos.o;
+    data << moveFlags;
+    data << time;
+    data << pos.x;
+    data << pos.y;
+    data << pos.z;
+    data << pos.o;
 
-    if(HasMovementFlag(MOVEFLAG_TAXI))
+    if(HasMovementFlag(MOVEFLAG_ONTRANSPORT))
     {
         data << t_guid;
         data << t_pos.x;
         data << t_pos.y;
         data << t_pos.z;
         data << t_pos.o;
-        data << t_time;
     }
-
     if(HasMovementFlag(MOVEFLAG_SWIMMING))
     {
         data << s_pitch;
     }
 
+    data << fallTime;
+
     if(HasMovementFlag(MOVEFLAG_FALLING))
     {
-        data << fallTime;
+        data << jump.velocity;
         data << jump.sinAngle;
         data << jump.cosAngle;
         data << jump.xyspeed;
     }
-	if (HasMovementFlag(MOVEFLAG_SPLINE_MOVER))
-	{
-		data << u_unk1;
-	}
 
-    if(unk13)
-        data << unk13;
+    if(HasMovementFlag(MOVEFLAG_SPLINE_ELEVATION))
+    {
+        data << u_unk1;                                     // unknown
+    }
 }
 
 ////////////////////////////////////////////////////////////
@@ -430,7 +416,7 @@ void Unit::SendHeartBeat(bool toSelf)
     {
         WorldPacket data(MSG_MOVE_HEARTBEAT, 31);
         data << GetPackGUID();
-        data << uint32(MOVEFLAG_MOVE_STOP);                      // movement flags
+        data << uint32(MOVEFLAG_NONE);                      // movement flags
         data << uint32(WorldTimer::getMSTime());            // time
         data << float(GetPositionX());
         data << float(GetPositionY());
@@ -6818,7 +6804,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate, bool forced)
             {
                 WorldPacket data(SetSpeed2Opc_table[mtype][0], 31);
                 data << GetPackGUID();
-                data << uint32(MOVEFLAG_MOVE_STOP);                      // movement flags
+                data << uint32(MOVEFLAG_NONE);                      // movement flags
                 data << uint32(WorldTimer::getMSTime());
                 data << float(GetPositionX());
                 data << float(GetPositionY());
@@ -8363,7 +8349,7 @@ void Unit::SetFeignDeath(bool apply, ObjectGuid casterGuid, uint32 /*spellID*/)
         if (GetTypeId() != TYPEID_PLAYER)
             StopMoving();
         else
-            ((Player*)this)->m_movementInfo.SetMovementFlags(MOVEFLAG_MOVE_STOP);
+            ((Player*)this)->m_movementInfo.SetMovementFlags(MOVEFLAG_NONE);
 
 
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);

@@ -31,51 +31,6 @@
 #include "MapPersistentStateMgr.h"
 #include "ObjectMgr.h"
 
-#ifdef WIN32
-
-#include <mmsystem.h>
-#pragma comment(lib, "winmm.lib")
-#define DELTA_EPOCH_IN_USEC  11644473600000000ULL
-
-uint32 TimeStamp()
-{
-    //return timeGetTime();
-
-    FILETIME ft;
-    uint64 t;
-    GetSystemTimeAsFileTime(&ft);
-
-    t = (uint64)ft.dwHighDateTime << 32;
-    t |= ft.dwLowDateTime;
-    t /= 10;
-    t -= DELTA_EPOCH_IN_USEC;
-
-    return uint32(((t / 1000000L) * 1000) + ((t % 1000000L) / 1000));
-}
-
-uint32 mTimeStamp()
-{
-    return timeGetTime();
-}
-
-#else
-
-uint32 TimeStamp()
-{
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    return (tp.tv_sec * 1000) + (tp.tv_usec / 1000);
-}
-
-uint32 mTimeStamp()
-{
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    return (tp.tv_sec * 1000) + (tp.tv_usec / 1000);
-}
-
-#endif
-
 void WorldSession::HandleMoveWorldportAckOpcode( WorldPacket & /*recv_data*/ )
 {
     DEBUG_LOG( "WORLD: got MSG_MOVE_WORLDPORT_ACK." );
@@ -303,16 +258,8 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     /* extract packet */
     MovementInfo movementInfo;
-	movementInfo.Read(recv_data);
+    recv_data >> movementInfo;
     /*----------------*/
-
-    // Calculate timestamp
-    uint32 move_time, mstime;
-    mstime = mTimeStamp();
-    if(m_clientTimeDelay == 0)
-        m_clientTimeDelay = mstime - movementInfo.time;
-    move_time = (movementInfo.time - (mstime + m_clientTimeDelay)) + mstime;
-    movementInfo.UpdateTime(move_time);
 
     if (!VerifyMovementInfo(movementInfo))
         return;
@@ -331,7 +278,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     if (opcode == MSG_MOVE_SET_WALK_MODE || opcode == MSG_MOVE_SET_RUN_MODE)
         mover->UpdateWalkMode(mover, false);
 
-    WorldPacket data(opcode, uint16(recv_data.size() + 2));
+    WorldPacket data(opcode, recv_data.size());
     data << mover->GetPackGUID();             // write guid
     movementInfo.Write(data);                               // write data
     mover->SendMessageToSetExcept(&data, _player);
@@ -537,7 +484,7 @@ bool WorldSession::VerifyMovementInfo(MovementInfo const& movementInfo) const
     if (!MaNGOS::IsValidMapCoord(movementInfo.GetPos()->x, movementInfo.GetPos()->y, movementInfo.GetPos()->z, movementInfo.GetPos()->o))
         return false;
 
-    if (movementInfo.HasMovementFlag(MOVEFLAG_TAXI))
+    if (movementInfo.HasMovementFlag(MOVEFLAG_ONTRANSPORT))
     {
         // transports size limited
         // (also received at zeppelin/lift leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
@@ -556,15 +503,17 @@ bool WorldSession::VerifyMovementInfo(MovementInfo const& movementInfo) const
 
 void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
 {
+    movementInfo.UpdateTime(WorldTimer::getMSTime());
+
     Unit *mover = _player->GetMover();
 
     if (Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL)
     {
-        if (movementInfo.HasMovementFlag(MOVEFLAG_TAXI))
+        if (movementInfo.HasMovementFlag(MOVEFLAG_ONTRANSPORT))
         {
             if (!plMover->m_transport)
             {
-                // elevators also cause the client to send MOVEFLAG_TAXI - just unmount if the guid can be found in the transport list
+                // elevators also cause the client to send MOVEFLAG_ONTRANSPORT - just unmount if the guid can be found in the transport list
                 for (MapManager::TransportSet::const_iterator iter = sMapMgr.m_Transports.begin(); iter != sMapMgr.m_Transports.end(); ++iter)
                 {
                     if ((*iter)->GetObjectGuid() == movementInfo.GetTransportGuid())
