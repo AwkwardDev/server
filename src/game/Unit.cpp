@@ -55,9 +55,9 @@
 #include <stdarg.h>
 
 #ifdef WIN32
-__forceinline uint32 getMSTime() { return GetTickCount(); }
+inline uint32 getMSTime() { return GetTickCount(); }
 #else
-__forceinline uint32 getMSTime()
+inline uint32 getMSTime()
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);

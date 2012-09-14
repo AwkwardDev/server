@@ -31,7 +31,7 @@
 #include "MapPersistentStateMgr.h"
 #include "ObjectMgr.h"
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
