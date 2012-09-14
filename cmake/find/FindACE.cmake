@@ -9,25 +9,21 @@ if(NOT _FIND_HANDLE_INCLUDED)
 endif()
 
 find_path(ACE_INCLUDE_DIR NAMES ace/ACE.h PATHS
+    "${ACE_ROOT}"
+    "${ACE_ROOT}/include"
     "/usr/include"
     "/usr/include/ace"
     "/usr/local/include"
-    "/usr/local/include/ace"
-    "${ACE_ROOT}"
-    "${ACE_ROOT}/include"
-    "$ENV{ACE_ROOT}"
-    "$ENV{ACE_ROOT}/include")
+    "/usr/local/include/ace")
 
 find_library(ACE_LIBRARY NAMES ace ACE PATHS
+    "${ACE_ROOT}"
+    "${ACE_ROOT}/lib"
     "/usr/lib"
     "/usr/lib/ace"
     "/usr/local/lib"
     "/usr/local/lib/ace"
-    "/usr/local/ace/lib"
-    "${ACE_ROOT}"
-    "${ACE_ROOT}/lib"
-    "$ENV{ACE_ROOT}"
-    "$ENV{ACE_ROOT}/lib")
+    "/usr/local/ace/lib")
 
 if(ACE_INCLUDE_DIR)
   message(STATUS "Found ACE headers: ${ACE_INCLUDE_DIR}")
