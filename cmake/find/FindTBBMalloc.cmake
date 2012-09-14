@@ -9,20 +9,16 @@ if(NOT _FIND_HANDLE_INCLUDED)
 endif()
 
 find_path(TBBMalloc_INCLUDE_DIR NAMES tbb/scalable_allocator.h PATHS
-    "/usr/local/include"
-    "/usr/include"
     "${TBB_ROOT}"
     "${TBB_ROOT}/include"
-    "$ENV{TBB_ROOT}"
-    "$ENV{TBB_ROOT}/include")
+    "/usr/local/include"
+    "/usr/include")
 
 set(TBBMalloc_LIBRARY_PATHS
-    "/usr/local/lib"
-    "/usr/lib"
     "${TBB_ROOT}"
     "${TBB_ROOT}/lib"
-    "$ENV{TBB_ROOT}"
-    "$ENV{TBB_ROOT}/lib")
+    "/usr/local/lib"
+    "/usr/lib")
 
 find_library(TBBMalloc_LIBRARY tbbmalloc PATHS ${TBBMalloc_LIBRARY_PATHS})
 
