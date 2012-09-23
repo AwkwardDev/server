@@ -1,10 +1,4 @@
-# If configuration files are present in this directory, they will be copied over
-# to the build tree, which allows to run the server from there. This is useful
-# when using debuggers such as the one integrated to Visual Studio.
-
-# You can find configuration file templates in <build_directory>/config after
-# running a build. Copy them over, customize them to your liking, then remove
-# the ".dist" extension.
+# See config/README.md
 
 add_custom_target(config_files ALL
   DEPENDS mangosd realmd mangosscript)

@@ -1,4 +1,4 @@
-# See the CMakeLists.txt in this directory.
+# See config/README.md
 
 set(_config_files
   "mangosd.conf"
