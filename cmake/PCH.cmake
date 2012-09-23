@@ -160,7 +160,7 @@ if(PCH)
     # Add the precompile flags to the target.
     # FUTURE Change to APPEND_STRING when switching to 2.9.
     get_target_property("${_target}" _cflags COMPILE_FLAGS)
-    set(_cflags "${_cflags} -I${CMAKE_CURRENT_BINARY_DIR}")
+    set(_cflags "${_cflags} \"-I${CMAKE_CURRENT_BINARY_DIR}\"")
     set(_cflags "${_cflags} -include ${_header_name} -Winvalid-pch")
     set_target_properties("${_target}" PROPERTIES COMPILE_FLAGS "${_cflags}")
 
