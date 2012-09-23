@@ -446,7 +446,7 @@ if on your machine the standard malloc outperforms the TBB one.
 
 `NOPCH`
 : Don't use precompiled headers. This will increase build time. I'm not quite
-sure in which situation this is useful. Currently broken with Visual Studio.
+sure in which situation this is useful.
 
 `ACE_USE_EXTERNAL`
 : Use an external ACE library instead of the one bundled with the server. Useful
