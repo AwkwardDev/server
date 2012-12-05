@@ -111,7 +111,6 @@ void MovementInfo::Read(ByteBuffer &data)
         data >> u_unk1;                                     // unknown
     }
 
-	data >> unklast;
 	if(data.rpos() != data.wpos())
 	{
         if(data.rpos() + 4 == data.wpos())
