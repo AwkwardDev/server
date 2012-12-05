@@ -111,6 +111,9 @@ void MovementInfo::Read(ByteBuffer &data)
         data >> u_unk1;                                     // unknown
     }
 
+    if(!HasMovementFlag(MOVEFLAG_TAXI))
+        data >> unklast;
+
 	if(data.rpos() != data.wpos())
 	{
         if(data.rpos() + 4 == data.wpos())
