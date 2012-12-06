@@ -240,7 +240,7 @@ directories. After that, run `makevmaps_SIMPLE.bat`. This will extract files
 into new `vmaps` and `Buildings` directories.
 
 `dbc` (standing for DataBaseClient) contains client-side database files
-containing data about items, NPC's, enviroment, world, etc. These data also
+containing data about items, NPC's, environment, world, etc. These data also
 happen to be needed server-side. `maps` holds a 3D mesh of the world. `vmaps`
 (Vertical MAPS) holds collision data. It's the stuff that prevents you from
 walking trough walls.
