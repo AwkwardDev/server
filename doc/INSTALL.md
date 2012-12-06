@@ -160,12 +160,12 @@ You now need to run CMake, either on the command line or with the GUI tool.
 If you use the command line, go inside the build directory, then input the
 following command:
 
-    cmake <source directory> PREFIX=<desired install location>
+    cmake <source directory> -DPREFIX=<desired install location>
 
 If you followed my guideline to place the build directory inside the source
 directory, `<source directory>` should simply be `..`.
 
-The whole `PREFIX=` part can be ommited, in which case the install location will
+The whole `-DPREFIX=` part can be ommited, in which case the install location will
 default to `C:\Program Files\Silverpine` (usually, I think it uses the
 `%ProgramFiles%` environement variable internally) on Windows, or
 `/etc/local/bin/Silverpine` on Linux.
@@ -191,7 +191,7 @@ this guide on Windows, that would be `Visual Studio 11`. Keep `Use default
 native compilers` checked.
 
 You now have the opportunity to change the installation path (see the stuff
-about `PREFIX` above) and other parameters listed in the [CMake Parameters
+about `-DPREFIX` above) and other parameters listed in the [CMake Parameters
 Reference](#cmake_parameters_reference) section. Once you are done, press
 `Generate`. You should now see a bunch of files in the build directory. In
 particular, you should see `Silverpine.sln` if you are using Visual Studio, and
@@ -435,7 +435,7 @@ boolean variables default to false.
 : Compile with debug information and checks. Not need for multi-configuration
 CMake generators such as Visual Studio.
 
-`PREFIX`
+`DPREFIX`
 : The path where the server should be installed. Absolute or relative to the
 source directory.
 

@@ -115,11 +115,11 @@ sudo aptitude -f install</code></pre>
 
 <p>If you use the command line, go inside the build directory, then input the following command:</p>
 
-<pre><code>cmake &lt;source directory&gt; PREFIX=&lt;desired install location&gt;</code></pre>
+<pre><code>cmake &lt;source directory&gt; -DPREFIX=&lt;desired install location&gt;</code></pre>
 
 <p>If you followed my guideline to place the build directory inside the source directory, <code>&lt;source directory&gt;</code> should simply be <code>..</code>.</p>
 
-<p>The whole <code>PREFIX=</code> part can be ommited, in which case the install location will default to <code>C:\Program Files\Silverpine</code> (usually, I think it uses the <code>%ProgramFiles%</code> environement variable internally) on Windows, or <code>/etc/local/bin/Silverpine</code> on Linux.</p>
+<p>The whole <code>-DPREFIX=</code> part can be ommited, in which case the install location will default to <code>C:\Program Files\Silverpine</code> (usually, I think it uses the <code>%ProgramFiles%</code> environement variable internally) on Windows, or <code>/etc/local/bin/Silverpine</code> on Linux.</p>
 
 <p>Also note that this will use the default CMake generator. The generator dictates the type of build files CMake generates. In some cases, the default generator might not be what you want. In that case, use the <code>-G</code> command line switch followed by the generator names between double quotes. You can find a list of available generators <a href='http://www.cmake.org/cmake/help/v2.8.9/cmake.html#section_Generators'>here</a>.</p>
 
@@ -128,7 +128,7 @@ sudo aptitude -f install</code></pre>
 <p>If you use the GUI, fill the <code>Where is the source code</code> field with the source directory and the <code>Where to build the binaries</code> field with the build directory. Press <code>Configure</code> and choose the appropriate generator. If you are following this guide on Windows, that would be <code>Visual Studio 11</code>. Keep <code>Use default
 native compilers</code> checked.</p>
 
-<p>You now have the opportunity to change the installation path (see the stuff about <code>PREFIX</code> above) and other parameters listed in the <a href='#cmake_parameters_reference'>CMake Parameters Reference</a> section. Once you are done, press <code>Generate</code>. You should now see a bunch of files in the build directory. In particular, you should see <code>Silverpine.sln</code> if you are using Visual Studio, and <code>Makefile</code> if you are using Linux.</p>
+<p>You now have the opportunity to change the installation path (see the stuff about <code>-DPREFIX</code> above) and other parameters listed in the <a href='#cmake_parameters_reference'>CMake Parameters Reference</a> section. Once you are done, press <code>Generate</code>. You should now see a bunch of files in the build directory. In particular, you should see <code>Silverpine.sln</code> if you are using Visual Studio, and <code>Makefile</code> if you are using Linux.</p>
 
 <h3 id='building_and_installing'>Building and Installing</h3>
 
@@ -284,7 +284,7 @@ title=Command_reference'>command reference</a> for more info (only the commands 
 
 <dd>Compile with debug information and checks. Not need for multi-configuration CMake generators such as Visual Studio.</dd>
 
-<dt><code>PREFIX</code></dt>
+<dt><code>DPREFIX</code></dt>
 
 <dd>The path where the server should be installed. Absolute or relative to the source directory.</dd>
 
