@@ -46,7 +46,7 @@ uint32 mTimeStamp()
 
 uint32 mTimeStamp()
 {
-    struct timestruct tp;
+    struct timespec tp;
     /* Something went wrong */
     if(clock_gettime(CLOCK_MONOTONIC, &tp) != 0)
         return 0;
