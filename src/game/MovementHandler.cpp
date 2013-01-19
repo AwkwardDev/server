@@ -35,24 +35,6 @@
 
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
-#define DELTA_EPOCH_IN_USEC  11644473600000000ULL
-
-uint32 TimeStamp()
-{
-    //return timeGetTime();
-
-    FILETIME ft;
-    uint64 t;
-    GetSystemTimeAsFileTime(&ft);
-
-    t = (uint64)ft.dwHighDateTime << 32;
-    t |= ft.dwLowDateTime;
-    t /= 10;
-    t -= DELTA_EPOCH_IN_USEC;
-
-    return uint32(((t / 1000000L) * 1000) + ((t % 1000000L) / 1000));
-}
-
 uint32 mTimeStamp()
 {
     return timeGetTime();
@@ -60,18 +42,16 @@ uint32 mTimeStamp()
 
 #else
 
-uint32 TimeStamp()
-{
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    return (tp.tv_sec * 1000) + (tp.tv_usec / 1000);
-}
+#include <time.h>
 
 uint32 mTimeStamp()
 {
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    return (tp.tv_sec * 1000) + (tp.tv_usec / 1000);
+    struct timestruct tp;
+    /* Something went wrong */
+    if(clock_gettime(CLOCK_MONOTONIC, &tp) != 0)
+        return 0;
+
+    return (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000);
 }
 
 #endif
