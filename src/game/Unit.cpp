@@ -97,10 +97,12 @@ void MovementInfo::Read(ByteBuffer &data)
     {
         data >> s_pitch;
     }
+    
+    data >> fallTime;
 
     if(HasMovementFlag(MOVEFLAG_FALLING) || HasMovementFlag(MOVEFLAG_REDIRECTED))
     {
-        data >> fallTime;
+        data >> jump.velocity;
         data >> jump.sinAngle;
         data >> jump.cosAngle;
         data >> jump.xyspeed;
@@ -110,9 +112,6 @@ void MovementInfo::Read(ByteBuffer &data)
     {
         data >> u_unk1;                                     // unknown
     }
-
-    if(!HasMovementFlag(MOVEFLAG_TAXI))
-        data >> unklast;
 
 	if(data.rpos() != data.wpos())
 	{
@@ -142,10 +141,12 @@ void MovementInfo::Write(ByteBuffer &data) const
     {
         data << s_pitch;
     }
+    
+    data << fallTime;
 
     if(HasMovementFlag(MOVEFLAG_FALLING))
     {
-        data << fallTime;
+        data << jump.velocity;
         data << jump.sinAngle;
         data << jump.cosAngle;
         data << jump.xyspeed;
