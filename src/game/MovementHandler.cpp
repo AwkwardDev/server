@@ -287,11 +287,27 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     /*----------------*/
 
     // Calculate timestamp
-    uint32 move_time, mstime;
+    int32 move_time, mstime;
     mstime = mTimeStamp();
     if(m_clientTimeDelay == 0)
         m_clientTimeDelay = mstime - movementInfo.time;
-    move_time = (movementInfo.time - (mstime + m_clientTimeDelay)) + mstime;
+
+    /* if(movementInfo.time - (mstime + m_clientTimeDelay) < 0)
+    {
+        move_time = mstime + 500;
+        move_time -= (movementInfo.time - (mstime + m_clientTimeDelay));
+        movementInfo.UpdateTime(move_time);
+    }
+    else
+    {
+    int calc_var = (movementInfo.time - (mstime + m_clientTimeDelay)); 
+    if(calc_var < 0)
+        calc_var *= -1;
+    calc_var += 500 + mstime; 
+    move_time = calc_var; */
+
+
+    move_time = (movementInfo.time - (mstime - m_clientTimeDelay)) + 500 + mstime;
     movementInfo.UpdateTime(move_time);
 
     if (!VerifyMovementInfo(movementInfo))
