@@ -100,7 +100,7 @@ void MovementInfo::Read(ByteBuffer &data)
     
     data >> fallTime;
 
-    if(HasMovementFlag(MOVEFLAG_FALLING) || HasMovementFlag(MOVEFLAG_REDIRECTED))
+    if(HasMovementFlag(MOVEFLAG_FALLING) || (HasMovementFlag(MOVEFLAG_REDIRECTED) && data.size() != 28))
     {
         data >> jump.velocity;
         data >> jump.sinAngle;
@@ -144,7 +144,7 @@ void MovementInfo::Write(ByteBuffer &data) const
     
     data << fallTime;
 
-    if(HasMovementFlag(MOVEFLAG_FALLING) || HasMovementFlag(MOVEFLAG_REDIRECTED))
+    if(HasMovementFlag(MOVEFLAG_FALLING) || (HasMovementFlag(MOVEFLAG_REDIRECTED) && data.size() != 28))
     {
         data << jump.velocity;
         data << jump.sinAngle;
@@ -156,7 +156,7 @@ void MovementInfo::Write(ByteBuffer &data) const
 		data << u_unk1;
 	}
 
-    if(unk13)
+    if(unk13 != 0)
         data << unk13;
 }
 
@@ -781,7 +781,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             // only if not player and not controlled by player pet. And not at BG
             if (durabilityLoss && !player_tap && !((Player*)pVictim)->InBattleGround())
             {
-                DEBUG_LOG("We are dead, loosing 10 percents durability");
                 ((Player*)pVictim)->DurabilityLossAll(0.10f,false);
                 // durability lost message
                 WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
