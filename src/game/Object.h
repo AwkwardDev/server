@@ -232,6 +232,9 @@ class MANGOS_DLL_SPEC Object
 
         void SetFlag( uint16 index, uint32 newFlag );
         void RemoveFlag( uint16 index, uint32 oldFlag );
+        
+        void SetPlayerSpecificFlag(uint16 index, uint32 newFlag, Player* plr);
+        void RemovePlayerSpecificFlag(uint16 index, uint32 newFlag, Player* plr);
 
         void ToggleFlag( uint16 index, uint32 flag)
         {
@@ -378,6 +381,8 @@ class MANGOS_DLL_SPEC Object
             uint32 *m_uint32Values;
             float  *m_floatValues;
         };
+
+        std::map<uint32, uint32> m_plrSpecificFlags;
 
         uint32 *m_uint32Values_mirror;
 
