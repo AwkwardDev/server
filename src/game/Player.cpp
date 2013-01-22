@@ -2554,6 +2554,20 @@ void Player::InitStatsForLevel(bool reapplyMods)
         pet->SynchronizeLevelWithOwner();
 }
 
+
+struct spell_data {
+    uint16 spell_id; // Sent together with unk2 for a total of 4 bytes per spell
+    uint16 on_cooldown;     // zero every time
+};
+
+struct spell_cooldown_data {
+    uint16 spell_id;          // ID of spell on cooldown
+    uint16 item_id;           // ID of item on cooldown (can be 0) 
+    uint16 spell_category;    // Category of spell on cooldown (but not the category that IS on cooldown, just the category the spell belongs to)
+    uint32 spell_cd_ms;       // Amount of time in ms spell is on cooldown for
+    uint32 cat_cd_ms;         // Amount of time in ms that category is on cooldown for
+};
+
 /* Used during Player::SendInitialPacketsBeforeAddToMap */
 void Player::SendInitialSpells()
 {
@@ -2567,19 +2581,23 @@ void Player::SendInitialSpells()
     uint8 unk1 = 0; // Unknown (always 0)
     uint16 spell_count = 0; // Number of spells to send
 
+    /* Apparently GCC doesn't support using local structs in vectors :(
+     * Why can't people just use Windows? */
+    /*
     struct spell_data {
         uint16 spell_id; // Sent together with unk2 for a total of 4 bytes per spell
         uint16 on_cooldown;     // zero every time
-    };
+    };*/
     std::vector<spell_data> spells_to_send;
 
+    /*
     struct spell_cooldown_data {
         uint16 spell_id;          // ID of spell on cooldown
         uint16 item_id;           // ID of item on cooldown (can be 0) 
         uint16 spell_category;    // Category of spell on cooldown (but not the category that IS on cooldown, just the category the spell belongs to)
         uint32 spell_cd_ms;       // Amount of time in ms spell is on cooldown for
         uint32 cat_cd_ms;         // Amount of time in ms that category is on cooldown for
-    };
+    };*/
     uint16 spell_cooldown_count = m_spellCooldowns.size();
     std::vector<spell_cooldown_data> cooldowns_to_send;
 
