@@ -278,6 +278,15 @@ void WorldSession::HandleLootOpcode( WorldPacket & recv_data )
     if (!_player->isAlive())
         return;
 
+    /* Make sure player is allowed to loot before sending them loot data */
+    if(Creature* my_creature = _player->GetMap()->GetCreature(guid))
+        /* If the player is NOT allowed to loot */
+        if(!_player->isAllowedToLoot(my_creature))
+        {
+            _player->SendLootRelease(guid);
+            return;
+        }
+
     GetPlayer()->SendLoot(guid, LOOT_CORPSE);
 }
 
@@ -389,9 +398,12 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                 go->SetLootState(GO_ACTIVATED);
             break;
         }
-        case HIGHGUID_CORPSE:                               // ONLY remove insignia at BG
+        /* Only used for removing insignia in battlegrounds */
+        case HIGHGUID_CORPSE:
         {
+            /* Get pointer to corpse */
             Corpse *corpse = _player->GetMap()->GetCorpse(lguid);
+            /* If corpse is invalid or not in a valid position, dont allow looting */
             if (!corpse || !corpse->IsWithinDistInMap(_player,INTERACTION_DISTANCE) )
                 return;
 
@@ -438,24 +450,35 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         }
         case HIGHGUID_UNIT:
         {
+            /* Get creature pointer */
             Creature* pCreature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-            bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass()==CLASS_ROGUE && pCreature->lootForPickPocketed);
+            bool ok_loot = (pCreature && // The creature exists (we dont have a null pointer)
+                           pCreature->isAlive() == // Creature is alive and we're a rogue and creature can be pickpocketed 
+                           (player->getClass()==CLASS_ROGUE && pCreature->lootForPickPocketed));
             if ( !ok_loot || !pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE) )
                 return;
 
+            /* Copy creature loot to loot variable */
             loot = &pCreature->loot;
 
-            // update next looter
-            if(Group* group = pCreature->GetGroupLootRecipient())
-                if (group->GetLooterGuid() == player->GetObjectGuid())
-                    group->UpdateLooterGuid(pCreature);
+            /* Loot window has been closed! Mark creature to show first player finished looting */
+            pCreature->hasBeenLootedOnce = true;
 
+            // update next looter
+            // Old system (we no longer alter the master looter)
+            /*if(Group* group = pCreature->GetGroupLootRecipient())
+                if (group->GetLooterGuid() == player->GetObjectGuid())
+                    group->UpdateLooterGuid(pCreature);*/
+            
+            /* This sets the lootable flag again and updates the creature so others see the loot */
+            pCreature->PrepareBodyLootState();
+
+            /* We've completely looted the creature, mark it as available for skinning */
             if (loot->isLooted())
             {
-                // for example skinning after normal loot
-                pCreature->PrepareBodyLootState();
-
+                
+                /* Update creature */
                 if(!pCreature->isAlive())
                     pCreature->AllLootRemovedFromCorpse();
             }

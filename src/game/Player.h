@@ -848,7 +848,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         explicit Player (WorldSession *session);
         ~Player ( );
 
-        clock_t lastTimeLooted;
+        time_t lastTimeLooted;
 
         void CleanupsBeforeDelete();
 
@@ -2037,6 +2037,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         MapReference &GetMapRef() { return m_mapRef; }
 
         bool isAllowedToLoot(Creature* creature);
+        bool isTappedByMeOrMyGroup(Creature* creature);
 
     protected:
 

@@ -7351,6 +7351,12 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
         default: break;
     }
 
+    /* Avoid "That is still being rolled for" bug
+     * This is a hackfix, but needs more work on loot system to fix properly */
+    for(int i = 0; i < loot->items.size(); ++i)
+        if(!loot->items[i].is_blocked && loot->items[i].is_underthreshold == false)
+            loot->items[i].is_underthreshold = true;
+
     WorldPacket data(SMSG_LOOT_RESPONSE, (9+50));           // we guess size
     data << ObjectGuid(guid);
     data << uint8(loot_type);
@@ -14159,6 +14165,41 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder )
     return true;
 }
 
+bool Player::isTappedByMeOrMyGroup(Creature* creature)
+{
+    /* Nobody tapped the monster (solo kill by another NPC) */
+    if (!creature->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
+        return false;
+
+    /* If there is a loot recipient, assign it to recipient */
+    if (Player* recipient = creature->GetLootRecipient())
+    {
+        /* See if we're in a group */
+        if(Group* plr_group = recipient->GetGroup())
+        {
+            /* Recipient is in a group... but is it ours? */
+            if(Group* my_group = GetGroup())
+            {
+                /* Check groups are the same */
+                if(plr_group != my_group)
+                    return false; // Cheater, deny loot
+            }
+            else
+                return false; // We're not in a group, probably cheater
+
+            /* We're in the looters group, so mob is tapped by us */
+            return true;
+        }
+        /* We're not in a group, check to make sure we're the recipient (prevent cheaters) */
+        else if (recipient == this)
+            return true;
+    }
+    else
+        /* Don't know what happened to the recipient, probably disconnected
+         * Either way, it isn't us, so mark as tapped */
+        return false;
+}
+
 /* Checks to see if the current player can loot the creature specified in arg1
  * Called from Object::BuildValuesUpdate */
 bool Player::isAllowedToLoot(Creature* creature)
@@ -14207,7 +14248,47 @@ bool Player::isAllowedToLoot(Creature* creature)
                          * If this is true, allow everyone else in the group to loot the corpse */
                         if(creature->hasBeenLootedOnce)
                             return true;
+                        /* If the assigned looter's GUID is equal to ours */
+                        else if (creature->assignedLooter == GetGUIDLow())
+                            return true;
+                        /* If the creature already has an assigned looter and that looter isn't us */
+                        else if (creature->assignedLooter != 0)
+                            return false;
 
+                        /* If we've reached here, there is only one exclusive, undecided looter */
+
+                        /* This is the player that will be given permission to loot */
+                        Player* final_looter = recipient;
+
+                        /* Iterate through the valid party members */
+                        Group::MemberSlotList slots = plr_group->GetMemberSlots();
+                        for(Group::MemberSlotList::iterator itr = slots.begin(); itr != slots.end(); ++itr)
+                        {
+                            /* Get the player data */
+                            if(Player* grp_plr = sObjectMgr.GetPlayer(itr->guid))
+                            {
+                                /* Player is disconnected */
+                                if(!grp_plr->IsInWorld())
+                                    continue;
+
+                                /* Check if the last time the player looted is less than the current final looter
+                                 * If the value is lower, it means it happened longer ago */
+                                if(final_looter->lastTimeLooted > grp_plr->lastTimeLooted)
+                                    final_looter = grp_plr;
+                            }
+                        }
+
+                        /* We have our looter, update their loot time */
+                        final_looter->lastTimeLooted = time(NULL);
+
+                        /* Update the creature with the looter that has been assigned to them */
+                        creature->assignedLooter = final_looter->GetGUIDLow();
+
+                        /* Finally, return if we are the assigned looter */
+                        uint32 flguid = final_looter->GetGUIDLow();
+                        uint32 myguid = GetGUIDLow();
+                        bool is_same = (flguid == myguid);
+                        return is_same;
 
                         break;
                     /* End of switch statement */
@@ -16154,26 +16235,16 @@ void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiv
         language = LANG_UNIVERSAL;                          // whispers should always be readable
 
     Player *rPlayer = sObjectMgr.GetPlayer(receiver);
+    WorldPacket data(SMSG_MESSAGECHAT, 100);
+    BuildPlayerChat(&data, CHAT_MSG_WHISPER, text, language);
+    rPlayer->GetSession()->SendPacket(&data);
 
-    // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
-    if(!rPlayer->isDND() || isGameMaster())
+    // not send confirmation for addon messages
+    if (language != LANG_ADDON)
     {
-        WorldPacket data(SMSG_MESSAGECHAT, 100);
-        BuildPlayerChat(&data, CHAT_MSG_WHISPER, text, language);
-        rPlayer->GetSession()->SendPacket(&data);
-
-        // not send confirmation for addon messages
-        if (language != LANG_ADDON)
-        {
-            data.Initialize(SMSG_MESSAGECHAT, 100);
-            rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, text, language);
-            GetSession()->SendPacket(&data);
-        }
-    }
-    else
-    {
-        // announce to player that player he is whispering to is dnd and cannot receive his message
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
+        data.Initialize(SMSG_MESSAGECHAT, 100);
+        rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, text, language);
+        GetSession()->SendPacket(&data);
     }
 
     if(!isAcceptWhispers())
@@ -16182,13 +16253,13 @@ void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiv
         ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
     }
 
-    // announce to player that player he is whispering to is afk
+    /* Announce to the player that the person they're whispering to is afk */
     if(rPlayer->isAFK())
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), rPlayer->afkMsg.c_str());
-
-    // if player whisper someone, auto turn of dnd to be able to receive an answer
-    if(isDND() && !rPlayer->isGameMaster())
-        ToggleDND();
+    
+    /* Announce to the player that the person they're whispering to is dnd */
+    if(rPlayer->isDND())
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
 }
 
 void Player::PetSpellInitialize()
