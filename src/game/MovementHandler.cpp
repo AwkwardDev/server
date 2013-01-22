@@ -63,7 +63,7 @@ uint32 mTimeStamp()
 {
     struct timeval tp;
     gettimeofday(&tp, NULL);
-    uint32 return_val = ((tp.tv_sec * 1000) + (tp.tv_usec / 1000)) - TWENTY_YEARS_IN_MS;
+    uint32 return_val = (((tp.tv_sec * 1000) + (tp.tv_usec / 1000)) - TWENTY_YEARS_IN_MS);
     return return_val;
 }
 
