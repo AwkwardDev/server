@@ -31,10 +31,6 @@
 #include "MapPersistentStateMgr.h"
 #include "ObjectMgr.h"
 
-/* We subtract 20 years from the epoch so that it doesn't overflow uint32
- * TODO: Remember to update code in 20 years */
-#define TWENTY_YEARS_IN_MS 631139040000
-
 #if defined(WIN32) && !defined(__MINGW32__)
 
 #include <mmsystem.h>
@@ -43,6 +39,9 @@
 
 uint32 mTimeStamp()
 {
+    /* We subtract 20 years from the epoch so that it doesn't overflow uint32
+     * TODO: Remember to update code in 20 years */
+    const uint32 YEAR_IN_SECONDS = 31556952;
     FILETIME ft;
     uint64 t;
     GetSystemTimeAsFileTime(&ft);
@@ -52,7 +51,7 @@ uint32 mTimeStamp()
     t /= 10;
     t -= DELTA_EPOCH_IN_USEC;
 
-    return uint32( ( ((t / 1000000L) * 1000) + ((t % 1000000L) / 1000) ) - TWENTY_YEARS_IN_MS );
+    return uint32( ( ((t / 1000000L) * 1000) + ((t % 1000000L) / 1000) ) - ( (YEAR_IN_SECONDS * 20) * 1000) );
 }
 
 #else
@@ -62,8 +61,9 @@ uint32 mTimeStamp()
 uint32 mTimeStamp()
 {
     struct timeval tp;
+    const uint32 YEAR_IN_SECONDS = 31556952;
     gettimeofday(&tp, NULL);
-    uint32 return_val = (((tp.tv_sec * 1000) + (tp.tv_usec / 1000)) - TWENTY_YEARS_IN_MS);
+    uint32 return_val = (((tp.tv_sec * 1000) + (tp.tv_usec / 1000)) - ( (YEAR_IN_SECONDS * 20) * 1000) );
     return return_val;
 }
 
