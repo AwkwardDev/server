@@ -150,6 +150,11 @@ void ReputationMgr::SendState(FactionState const* faction)
     m_player->SendDirectMessage(&data);
 }
 
+struct rep {
+    uint8 flags;
+    uint32 standing;
+};
+
 /* Called from Player::SendInitialPacketsBeforeAddToMap */
 void ReputationMgr::SendInitialReputations()
 {
@@ -162,10 +167,12 @@ void ReputationMgr::SendInitialReputations()
      * * * * * * * * * * * * * * * * */
 
     uint32 unk1 = 0x00000040; // I don't know what this is for. Somebody tell me? (Evilfairy)
+    /* Doesn't compile on *nix
+    
     struct rep {
         uint8 flags;
         uint32 standing;
-    };
+    };*/
     std::vector<rep> reputations_to_send; // List of reputations
 
     /* * * * * * * * * * * * * * * * *
