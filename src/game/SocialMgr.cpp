@@ -114,6 +114,16 @@ void PlayerSocial::RemoveFromSocialList(ObjectGuid friend_guid, bool ignore)
     }
 }
 
+struct friend_ {
+    uint64 guid; // ObjectGuid
+    uint8 status; // is this a boolean?
+
+    /* Data below is only set if friend is online */
+    uint32 area; // Area player is in
+    uint32 level; // Level player is
+    uint32 class_; // Class player is
+};
+
 /* Called by WorldSession::HandlePlayerLogin */
 void PlayerSocial::SendFriendList()
 {
@@ -131,15 +141,18 @@ void PlayerSocial::SendFriendList()
     
     /* Returns the number of friends on the player's social map */
     uint32 size = GetNumberOfSocialsWithFlag(SOCIAL_FLAG_FRIEND);
+    
+    /* GCC does not compile when you try to use local structs in vectors. :|
+    
     struct friend_ {
         uint64 guid; // ObjectGuid
         uint8 status; // is this a boolean?
 
-        /* Data below is only set if friend is online */
+        /* Data below is only set if friend is online 
         uint32 area; // Area player is in
         uint32 level; // Level player is
         uint32 class_; // Class player is
-    };
+    };*/
     std::vector<friend_> friends_to_send;
     /* * * * * * * * * * * * * * * * *
      * *  END OF PACKET STRUCTURE  * *
