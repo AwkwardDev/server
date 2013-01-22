@@ -80,7 +80,6 @@ float baseMoveSpeed[MAX_MOVE_TYPE] =
 
 void MovementInfo::Read(ByteBuffer &data)
 {
-    unk13 = 0;
     data >> moveFlags >> time;
     data >> pos.x >> pos.y >> pos.z >> pos.o;
 
@@ -98,7 +97,9 @@ void MovementInfo::Read(ByteBuffer &data)
         data >> s_pitch;
     }
     
-    data >> fallTime;
+    /* This is never sent when we're on a taxi */
+    if(!HasMovementFlag(MOVEFLAG_TAXI))
+        data >> fallTime;
 
     if(HasMovementFlag(MOVEFLAG_FALLING) || (HasMovementFlag(MOVEFLAG_REDIRECTED) && data.size() != 28))
     {
@@ -112,14 +113,6 @@ void MovementInfo::Read(ByteBuffer &data)
     {
         data >> u_unk1;                                     // unknown
     }
-
-	if(data.rpos() != data.wpos())
-	{
-        if(data.rpos() + 4 == data.wpos())
-            data >> unk13;
-        else
-            sLog.outDebug("Extra bits of movement packet left");
-	}
 }
 
 void MovementInfo::Write(ByteBuffer &data) const
@@ -142,7 +135,9 @@ void MovementInfo::Write(ByteBuffer &data) const
         data << s_pitch;
     }
     
-    data << fallTime;
+    /* This is never sent when we're on a taxi */
+    if(!HasMovementFlag(MOVEFLAG_TAXI))
+        data << fallTime;
 
     if(HasMovementFlag(MOVEFLAG_FALLING) || (HasMovementFlag(MOVEFLAG_REDIRECTED) && data.size() != 28))
     {
@@ -155,9 +150,6 @@ void MovementInfo::Write(ByteBuffer &data) const
 	{
 		data << u_unk1;
 	}
-
-    if(unk13 != 0)
-        data << unk13;
 }
 
 ////////////////////////////////////////////////////////////
