@@ -31,13 +31,28 @@
 #include "MapPersistentStateMgr.h"
 #include "ObjectMgr.h"
 
+/* We subtract 20 years from the epoch so that it doesn't overflow uint32
+ * TODO: Remember to update code in 20 years */
+#define TWENTY_YEARS_IN_MS 631139040000
+
 #if defined(WIN32) && !defined(__MINGW32__)
 
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
+#define DELTA_EPOCH_IN_USEC  11644473600000000ULL
+
 uint32 mTimeStamp()
 {
-    return timeGetTime();
+    FILETIME ft;
+    uint64 t;
+    GetSystemTimeAsFileTime(&ft);
+
+    t = (uint64)ft.dwHighDateTime << 32;
+    t |= ft.dwLowDateTime;
+    t /= 10;
+    t -= DELTA_EPOCH_IN_USEC;
+
+    return uint32( ( ((t / 1000000L) * 1000) + ((t % 1000000L) / 1000) ) - TWENTY_YEARS_IN_MS );
 }
 
 #else
@@ -46,12 +61,10 @@ uint32 mTimeStamp()
 
 uint32 mTimeStamp()
 {
-    struct timespec tp;
-    /* Something went wrong */
-    if(clock_gettime(CLOCK_MONOTONIC, &tp) != 0)
-        return 0;
-
-    return (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000);
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    uint32 return_val = ((tp.tv_sec * 1000) + (tp.tv_usec / 1000)) - TWENTY_YEARS_IN_MS;
+    return return_val;
 }
 
 #endif
