@@ -1246,6 +1246,33 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
             if (!((Creature const*)this)->CanFly())
             {
+                /* Hackfix for movement on transports */
+                /* If we have a target or an owner */
+                if(Player* plr =  (Player*)((Creature const*) this)->getVictim())
+                {
+                    if(plr->HasMovementFlag(MOVEFLAG_TAXI))
+                    {
+                        float ground_z = GetTerrain()->GetHeight(x, y, z, true);
+                        z = plr->GetPositionZ();
+                        if (z < ground_z)
+                            z = ground_z;
+
+                        return;
+                    }
+                }
+                // Can be both, but target is more important than owner for Z pos
+                if(Player* owner = (Player*)((Creature const*) this)->GetOwner())
+                {
+                    if (owner->HasMovementFlag(MOVEFLAG_TAXI))
+                    {
+                        float ground_z = GetTerrain()->GetHeight(x, y, z, true);
+                        z = owner->GetPositionZ();
+                        if (z < ground_z)
+                            z = ground_z;
+
+                        return;
+                    }
+                }
                 bool canSwim = ((Creature const*)this)->CanSwim();
                 float ground_z = z;
                 float max_z = GetTerrain()->GetWaterOrGroundLevel(x, y, z, &ground_z, (canSwim && !((Unit const*)this)->HasAuraType(SPELL_AURA_WATER_WALK)));
